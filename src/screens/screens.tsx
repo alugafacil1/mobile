@@ -1,0 +1,1 @@
+// (as telas principais do app, ex: Home.tsx, Profile.tsx)
