@@ -1,0 +1,1 @@
+// (chamadas de API, ex: api.ts, authService.ts)

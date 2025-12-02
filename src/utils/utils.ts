@@ -1,0 +1,1 @@
+// (funções helpers, ex: formatCurrency.ts)
