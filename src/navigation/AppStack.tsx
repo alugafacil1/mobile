@@ -10,7 +10,7 @@ export default function AppStack() {
       <Stack.Screen 
         name="Home" 
         component={HomeScreen} 
-        options={{ title: 'Início', headerLeft: () => null }} 
+        options={{ title: 'Tela Inicial', headerLeft: () => null }}
       />
     </Stack.Navigator>
   );
