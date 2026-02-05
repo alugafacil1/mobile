@@ -5,7 +5,7 @@ import { useNavigation } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
 import Logo from '../../assets/logo.png';
 
-export default function HomeScreen({ navigation }: any) {
+export default function HomeScreen() {
   const { user, logout } = useAuth();
   const navigation: any = useNavigation();
 
