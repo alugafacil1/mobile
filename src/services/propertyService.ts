@@ -4,7 +4,6 @@ import { Property } from '../types/property';
 export async function getProperties(): Promise<Property[]> {
   try {
     const res = await api.get('/api/properties');
-    console.log('Propriedades recebidas (raw):', res.data);
 
     const payload = res.data as any;
 
