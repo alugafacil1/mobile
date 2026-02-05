@@ -41,8 +41,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         throw new Error("Token não fornecido.");
       }
 
-      const userRole = data.roles && data.roles.length > 0 ? data.roles[0] : "TENANT";
-      
+      const userRole = data.roles && data.roles.length > 0 ? data.roles[data.roles.length - 1] : "TENANT";
+  
       const userData: User = {
         email: email,
         name: email.split("@")[0],

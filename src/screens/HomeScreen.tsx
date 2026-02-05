@@ -1,9 +1,11 @@
 import React from 'react';
 import { View, Text, Button, StyleSheet } from 'react-native';
 import { useAuth } from '../lib/auth/AuthContext';
+import { useNavigation } from '@react-navigation/native';
 
 export default function HomeScreen() {
   const { user, logout } = useAuth();
+  const navigation: any = useNavigation();
 
   return (
     <View style={styles.container}>
@@ -11,6 +13,10 @@ export default function HomeScreen() {
       <Text style={styles.subtitle}>Perfil: {user?.role}</Text>
       
       <View style={styles.buttonContainer}>
+        <Button title="Ver Imóveis" onPress={() => navigation.navigate('Properties')} />
+      </View>
+
+      <View style={[styles.buttonContainer, { marginTop: 12 }] }>
         <Button title="Sair do App" onPress={logout} color="red" />
       </View>
     </View>
