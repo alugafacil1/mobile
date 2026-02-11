@@ -3,6 +3,7 @@ import * as SecureStore from "expo-secure-store";
 import { api } from "../../../src/services/api"; 
 import { authService } from "../../../src/services/auth/authService"; 
 import { User, LoginResponse, AuthContextType } from "../../../src/types/auth"; 
+import { Platform } from "react-native";
 
 export const AuthContext = createContext<AuthContextType>({} as AuthContextType);
 
@@ -41,9 +42,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         throw new Error("Token não fornecido.");
       }
 
-      const userRole = data.roles && data.roles.length > 0 ? data.roles[data.roles.length - 1] : "TENANT";
+      const userRole = data.roles && data.roles.length > 0 ? data.roles[0] : "TENANT";
+      const userId = data.user_id;
   
       const userData: User = {
+        user_id: userId,
         email: email,
         name: email.split("@")[0],
         role: userRole,
