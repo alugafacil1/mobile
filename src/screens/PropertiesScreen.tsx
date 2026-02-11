@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useCallback, useRef, useLayoutEffect } from 'react';
 import { View, Text, FlatList, Image, StyleSheet, ActivityIndicator, RefreshControl, TouchableOpacity, Modal } from 'react-native';
-import { getProperties } from '../services/propertyService';
+import { getProperties, getPropertiesByOwnerId } from '../services/propertyService';
 import { Property, PropertyFilterRequest } from '../types/property';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import PropertyFilters from '../components/PropertyFilters';
@@ -27,16 +27,17 @@ export default function PropertiesScreen() {
 
   useLayoutEffect(() => {
     navigation.setOptions({
-      headerRight: () => (
-        <TouchableOpacity
-          onPress={() => filterRef.current?.openModal()}
-          style={{ marginRight: 12 }}
-        >
-        <Ionicons name="funnel-outline" size={22} />
-        </TouchableOpacity>
-      ),
+      headerRight: () => 
+        !user_id ? (
+          <TouchableOpacity
+            onPress={() => filterRef.current?.openModal()}
+            style={{ marginRight: 12 }}
+          >
+          <Ionicons name="funnel-outline" size={22} />
+          </TouchableOpacity>
+        ) : null,
     });
-  }, [navigation]);
+  }, [navigation, user_id]);
 
   const load = useCallback(async (isRefresh = false) => {
     if (isRefresh) setRefreshing(true);
