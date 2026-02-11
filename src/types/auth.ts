@@ -3,12 +3,14 @@ export interface User {
   name: string;
   email: string;
   role: string;
+  user_id: string;
 }
 
 export interface LoginResponse {
   access_token: string;
   refresh_token: string;
   roles: string[];
+  user_id: string;
 }
 
 export interface AuthContextType {

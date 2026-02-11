@@ -1,20 +1,28 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { View, Text, FlatList, Image, StyleSheet, ActivityIndicator, RefreshControl, TouchableOpacity } from 'react-native';
 import { getProperties } from '../services/propertyService';
+import { getPropertiesByOwnerId } from '../services/propertyService';
 import { Property } from '../types/property';
+import { useRoute } from '@react-navigation/native';
+import { useNavigation } from '@react-navigation/native';
+import Button from '../components/Button';
 
 export default function PropertiesScreen() {
   const [properties, setProperties] = useState<Property[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [refreshing, setRefreshing] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
-
+  const navigation: any = useNavigation();
+  const route = useRoute<any>();
+  const user_id = route.params?.user_id;
+  const role = route.params?.role;
+  
   const load = useCallback(async (isRefresh = false) => {
     if (isRefresh) setRefreshing(true);
     else setLoading(true);
 
     try {
-      const data = await getProperties();
+      const data = user_id ? await getPropertiesByOwnerId(user_id) : await getProperties();
       setProperties(data);
       setError(null);
     } catch (err: any) {
@@ -77,7 +85,7 @@ export default function PropertiesScreen() {
       </View>
     );
   }
-
+  
   return (
     <View style={styles.container}>
       <FlatList
@@ -88,7 +96,19 @@ export default function PropertiesScreen() {
         contentContainerStyle={{ padding: 12 }}
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => load(true)} />}
       />
+      {
+        role === 'OWNER' && (
+          <View style={{ margin: 12 }}>
+            <Button
+              icon="add-circle-outline"
+              label="Novo Imóvel"
+              onPress={() => navigation.navigate('CreateProperty')}
+            />
+          </View>
+        )
+      }
     </View>
+    
   );
 }
 
