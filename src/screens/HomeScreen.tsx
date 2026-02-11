@@ -38,7 +38,10 @@ export default function HomeScreen() {
             <MenuButton
               icon="home-outline"
               label="Meus Imóveis"
-              onPress={() => navigation.navigate('MyProperties')}
+              onPress={() => navigation.navigate('Properties', {
+                user_id: user?.user_id,
+                role: user?.role,
+              })}
             />
             <MenuButton
               icon="chatbubble-ellipses-outline"

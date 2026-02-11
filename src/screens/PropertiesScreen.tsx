@@ -2,9 +2,10 @@ import React, { useEffect, useState, useCallback, useRef, useLayoutEffect } from
 import { View, Text, FlatList, Image, StyleSheet, ActivityIndicator, RefreshControl, TouchableOpacity, Modal } from 'react-native';
 import { getProperties } from '../services/propertyService';
 import { Property, PropertyFilterRequest } from '../types/property';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useRoute } from '@react-navigation/native';
 import PropertyFilters from '../components/PropertyFilters';
 import { Ionicons } from '@expo/vector-icons';
+import Button from '../components/Button';
 
 interface PropertyFiltersRef {
   openModal: () => void;
@@ -20,6 +21,9 @@ export default function PropertiesScreen() {
   const [error, setError] = useState<string | null>(null);
   const [filters, setFilters] = useState<PropertyFilterRequest>({});
   const isFirstLoadRef = useRef(true);
+  const route = useRoute<any>();
+  const user_id = route.params?.user_id;
+  const role = route.params?.role;
 
   useLayoutEffect(() => {
     navigation.setOptions({
@@ -41,7 +45,7 @@ export default function PropertiesScreen() {
 
     try {
       const effectiveFilters = filters && Object.keys(filters).length > 0 ? filters : undefined;
-      const data = await getProperties(effectiveFilters);
+      const data = user_id ? await getPropertiesByOwnerId(user_id) : await getProperties(effectiveFilters);
       setProperties(data);
       setError(null);
     } catch (err: any) {
@@ -136,7 +140,7 @@ export default function PropertiesScreen() {
       </View>
     );
   }
-
+  
   return (
     <View style={styles.container}>
       <PropertyFilters 
@@ -169,7 +173,19 @@ export default function PropertiesScreen() {
           </View>
         </View>
       </Modal>
+      {
+        role === 'OWNER' && (
+          <View style={{ margin: 12 }}>
+            <Button
+              icon="add-circle-outline"
+              label="Novo Imóvel"
+              onPress={() => navigation.navigate('CreateProperty')}
+            />
+          </View>
+        )
+      }
     </View>
+    
   );
 }
 
