@@ -2,6 +2,7 @@ import React from 'react';
 import { createStackNavigator } from '@react-navigation/stack';
 import HomeScreen from '../screens/HomeScreen';
 import PropertiesScreen from '../screens/PropertiesScreen';
+import PropertyDetailsScreen from '../screens/PropertyDetailsScreen';
 
 const Stack = createStackNavigator();
 
@@ -17,6 +18,11 @@ export default function AppStack() {
         name="Properties"
         component={PropertiesScreen}
         options={{ title: 'Propriedades' }}
+      />
+      <Stack.Screen
+        name="PropertyDetails"
+        component={PropertyDetailsScreen}
+        options={{ title: 'Detalhes da Propriedade' }}
       />
     </Stack.Navigator>
   );
