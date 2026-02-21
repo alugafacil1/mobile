@@ -5,6 +5,7 @@ import {
 import { Ionicons } from '@expo/vector-icons'; 
 import Checkbox from 'expo-checkbox'; 
 import { useAuth } from '../lib/auth/AuthContext';
+import Logo from '../../assets/logo.png';
 
 export default function LoginScreen({ navigation }: any) {
   const { login, loading } = useAuth();
@@ -36,12 +37,11 @@ export default function LoginScreen({ navigation }: any) {
       <ScrollView contentContainerStyle={styles.scrollContent}>
         
         <View style={styles.logoContainer}>
-          <Image 
-            source={{ uri: 'https://via.placeholder.com/150' }} 
-            style={{ width: 100, height: 100 }} 
-            resizeMode="contain"
-          />
-          <Text style={styles.logoText}>Aluga<Text style={{color: '#4ADE80'}}>Fácil</Text></Text>
+           <Image
+              source={Logo}
+              style={styles.logo}
+              resizeMode="contain"
+            />
         </View>
 
         <View style={styles.tabContainer}>
@@ -186,5 +186,9 @@ const styles = StyleSheet.create({
     paddingVertical: 12, 
     gap: 8 
   },
-  socialText: { color: '#333', fontWeight: '500' }
+  socialText: { color: '#333', fontWeight: '500' },
+  logo: {
+    width: 300,
+    marginBottom: 10,
+  },
 });
