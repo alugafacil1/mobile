@@ -4,6 +4,7 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '../../src/lib/auth/AuthContext';
+import Logo from '../../assets/logo.png';
 
 export default function RegisterScreen({ navigation }: any) {
   const { signUp } = useAuth();
@@ -155,12 +156,11 @@ export default function RegisterScreen({ navigation }: any) {
       <ScrollView contentContainerStyle={styles.scrollContent}>
         
         <View style={styles.logoContainer}>
-          <Image 
-             source={{ uri: 'https://via.placeholder.com/150' }} 
-             style={{ width: 80, height: 80 }} 
-             resizeMode="contain"
-          />
-          <Text style={styles.logoText}>Aluga<Text style={{color: '#4ADE80'}}>Fácil</Text></Text>
+           <Image
+              source={Logo}
+              style={styles.logo}
+              resizeMode="contain"
+            />
         </View>
 
         <View style={styles.tabContainer}>
@@ -250,4 +250,8 @@ const styles = StyleSheet.create({
     marginTop: 10
   },
   actionButtonText: { color: '#fff', fontWeight: 'bold', fontSize: 16 },
+  logo: {
+    width: 300,
+    marginBottom: 10,
+  },
 });
