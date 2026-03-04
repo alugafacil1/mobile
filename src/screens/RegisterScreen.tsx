@@ -4,25 +4,18 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '../../src/lib/auth/AuthContext';
+import Logo from '../../assets/logo.png';
 
 export default function RegisterScreen({ navigation }: any) {
   const { signUp } = useAuth();
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
-  const [userType, setUserType] = useState<'locatario' | 'proprietario' | 'corretor' | ''>('');
+  const [userType, setUserType] = useState<'locatario'| ''>('');
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [phone, setPhone] = useState('');
   const [cpf, setCpf] = useState('');
-
-  function handleContinue() {
-    if (!userType) {
-      Alert.alert("Atenção", "Por favor, selecione um tipo de perfil.");
-      return;
-    }
-    setStep(2);
-  }
 
   async function handleRegister() {
     if (!name || !email || !password || !phone || !cpf) {
@@ -32,7 +25,7 @@ export default function RegisterScreen({ navigation }: any) {
 
     setLoading(true);
     try {
-      await signUp(name, email, phone, cpf, userType, password);
+      await signUp(name, email, phone, cpf, 'locatario', password);
       
       Alert.alert("Sucesso", "Conta criada com sucesso!", [
         { text: "Fazer Login", onPress: () => navigation.navigate("Login") }
@@ -47,37 +40,8 @@ export default function RegisterScreen({ navigation }: any) {
 
   const renderStep1 = () => (
     <View style={styles.stepContainer}>
-      <TouchableOpacity 
-        style={[styles.typeButton, userType === 'locatario' && styles.typeButtonActive]}
-        onPress={() => setUserType('locatario')}
-      >
-        <Text style={[styles.typeText, userType === 'locatario' && styles.typeTextActive]}>Locatário</Text>
-      </TouchableOpacity>
-
-      <TouchableOpacity 
-        style={[styles.typeButton, userType === 'proprietario' && styles.typeButtonActive]}
-        onPress={() => setUserType('proprietario')}
-      >
-        <Text style={[styles.typeText, userType === 'proprietario' && styles.typeTextActive]}>Proprietário</Text>
-      </TouchableOpacity>
-
-      <TouchableOpacity 
-        style={[styles.typeButton, userType === 'corretor' && styles.typeButtonActive]}
-        onPress={() => setUserType('corretor')}
-      >
-        <Text style={[styles.typeText, userType === 'corretor' && styles.typeTextActive]}>Corretor</Text>
-      </TouchableOpacity>
-
-      <TouchableOpacity style={styles.actionButton} onPress={handleContinue}>
-        <Text style={styles.actionButtonText}>Continue</Text>
-      </TouchableOpacity>
-    </View>
-  );
-
-  const renderStep2 = () => (
-    <View style={styles.stepContainer}>
       <View style={styles.inputContainer}>
-        <Ionicons name="person-outline" size={20} color="#666" style={styles.inputIcon} />
+        <Ionicons name="person-outline" size={20} color="#2563EB" style={styles.inputIcon} />
         <TextInput 
           style={styles.input} 
           placeholder="Nome Completo"
@@ -87,7 +51,7 @@ export default function RegisterScreen({ navigation }: any) {
       </View>
 
       <View style={styles.inputContainer}>
-        <Ionicons name="mail-outline" size={20} color="#666" style={styles.inputIcon} />
+        <Ionicons name="mail-outline" size={20} color="#2563EB" style={styles.inputIcon} />
         <TextInput 
           style={styles.input} 
           placeholder="Email"
@@ -99,7 +63,7 @@ export default function RegisterScreen({ navigation }: any) {
       </View>
 
       <View style={styles.inputContainer}>
-        <Ionicons name="lock-closed-outline" size={20} color="#666" style={styles.inputIcon} />
+        <Ionicons name="lock-closed-outline" size={20} color="#2563EB" style={styles.inputIcon} />
         <TextInput 
           style={styles.input} 
           placeholder="Senha"
@@ -110,7 +74,7 @@ export default function RegisterScreen({ navigation }: any) {
       </View>
 
       <View style={styles.inputContainer}>
-        <Ionicons name="call-outline" size={20} color="#666" style={styles.inputIcon} />
+        <Ionicons name="call-outline" size={20} color="#2563EB" style={styles.inputIcon} />
         <TextInput 
           style={styles.input} 
           placeholder="Telefone"
@@ -121,7 +85,7 @@ export default function RegisterScreen({ navigation }: any) {
       </View>
 
       <View style={styles.inputContainer}>
-        <Ionicons name="card-outline" size={20} color="#666" style={styles.inputIcon} />
+        <Ionicons name="card-outline" size={20} color="#2563EB" style={styles.inputIcon} />
         <TextInput 
           style={styles.input} 
           placeholder="CPF"
@@ -140,10 +104,6 @@ export default function RegisterScreen({ navigation }: any) {
             {loading ? "Criando..." : "Register"}
         </Text>
       </TouchableOpacity>
-
-      <TouchableOpacity onPress={() => setStep(1)} style={{marginTop: 15}}>
-          <Text style={{color: '#666'}}>Voltar</Text>
-      </TouchableOpacity>
     </View>
   );
 
@@ -155,12 +115,13 @@ export default function RegisterScreen({ navigation }: any) {
       <ScrollView contentContainerStyle={styles.scrollContent}>
         
         <View style={styles.logoContainer}>
-          <Image 
-             source={{ uri: 'https://via.placeholder.com/150' }} 
-             style={{ width: 80, height: 80 }} 
-             resizeMode="contain"
-          />
-          <Text style={styles.logoText}>Aluga<Text style={{color: '#4ADE80'}}>Fácil</Text></Text>
+          <View style={styles.logoContainer}>
+            <Image 
+                source={Logo} 
+                style={{ width: 320, height: 250 }} 
+                resizeMode="contain"
+              />
+            </View>
         </View>
 
         <View style={styles.tabContainer}>
@@ -176,7 +137,7 @@ export default function RegisterScreen({ navigation }: any) {
           </TouchableOpacity>
         </View>
 
-        {step === 1 ? renderStep1() : renderStep2()}
+        {renderStep1()}
 
       </ScrollView>
     </KeyboardAvoidingView>
@@ -185,7 +146,7 @@ export default function RegisterScreen({ navigation }: any) {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#fff' },
-  scrollContent: { flexGrow: 1, padding: 24, paddingTop: 60 }, 
+  scrollContent: { flexGrow: 1, padding: 24, paddingTop: 30 }, 
   logoContainer: { alignItems: 'center', marginBottom: 30 },
   logoText: { fontSize: 28, fontWeight: 'bold', color: '#2563EB', marginTop: 10 },
 
@@ -194,7 +155,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#F3F4F6', 
     borderRadius: 30, 
     padding: 4, 
-    marginBottom: 30 
+    marginBottom: 10 
   },
   tabButton: { flex: 1, paddingVertical: 12, alignItems: 'center', borderRadius: 25 },
   activeTab: { backgroundColor: '#fff', shadowColor: '#000', shadowOpacity: 0.1, shadowRadius: 2, elevation: 2 },
