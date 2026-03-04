@@ -77,6 +77,11 @@ export default function HomeScreen() {
 
       {/* Menu */}
       <View style={styles.menuContainer}>
+        <MenuButton
+          icon="map-outline"
+          label="Abrir Mapa"
+          onPress={() => navigation.navigate('Map', { latitude: -23.55052, longitude: -46.633308 })}
+        />
         {renderButtonsByRole()}
       </View>
 

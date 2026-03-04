@@ -4,6 +4,7 @@ import HomeScreen from '../screens/HomeScreen';
 import PropertiesScreen from '../screens/PropertiesScreen';
 import PropertyDetailsScreen from '../screens/PropertyDetailsScreen';
 import CreatePropertyScreen from '../screens/CreatePropertyScreen';
+import MapScreen from '../screens/MapScreen';
 
 const Stack = createStackNavigator();
 
@@ -29,6 +30,11 @@ export default function AppStack() {
         name="CreateProperty"
         component={CreatePropertyScreen}
         options={{ title: 'Criar Propriedade' }}
+      />
+      <Stack.Screen
+        name="Map"
+        component={MapScreen}
+        options={{ title: 'Mapa' }}
       />
     </Stack.Navigator>
   );
