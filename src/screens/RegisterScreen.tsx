@@ -5,7 +5,6 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '../../src/lib/auth/AuthContext';
 import Logo from '../../assets/logo.png';
-import Logo from '../../assets/logo.png';
 
 export default function RegisterScreen({ navigation }: any) {
   const { signUp } = useAuth();
