@@ -6,7 +6,6 @@ import { Ionicons } from '@expo/vector-icons';
 import Checkbox from 'expo-checkbox'; 
 import { useAuth } from '../lib/auth/AuthContext';
 import Logo from '../../assets/logo.png';
-import Logo from '../../assets/logo.png';
 
 export default function LoginScreen({ navigation }: any) {
   const { login, loading } = useAuth();
