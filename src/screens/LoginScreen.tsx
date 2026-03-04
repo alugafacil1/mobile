@@ -6,6 +6,7 @@ import { Ionicons } from '@expo/vector-icons';
 import Checkbox from 'expo-checkbox'; 
 import { useAuth } from '../lib/auth/AuthContext';
 import Logo from '../../assets/logo.png';
+import Logo from '../../assets/logo.png';
 
 export default function LoginScreen({ navigation }: any) {
   const { login, loading } = useAuth();
@@ -186,5 +187,9 @@ const styles = StyleSheet.create({
     paddingVertical: 12, 
     gap: 8 
   },
-  socialText: { color: '#333', fontWeight: '500' }
+  socialText: { color: '#333', fontWeight: '500' },
+  logo: {
+    width: 300,
+    marginBottom: 10,
+  },
 });

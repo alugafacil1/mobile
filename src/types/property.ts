@@ -2,9 +2,10 @@ export interface AddressResponse {
   street?: string;
   city?: string;
   state?: string;
-  zipcode?: string;
+  zipCode?: string;
   number?: string | number;
   complement?: string | null;
+  neighborhood?: string;
 }
 
 export interface GeolocationResponse {
@@ -15,6 +16,23 @@ export interface GeolocationResponse {
 export type PropertyStatus = 'ACTIVE' | 'PAUSED' | 'PLACED';
 
 export type PropertyType = 'APARTMENT' | 'HOUSE' | 'COMMERCIAL';
+
+export interface PropertyFilterRequest {
+  minPrice?: number;
+  maxPrice?: number;
+  minRooms?: number;
+  minBedrooms?: number;
+  garage?: boolean;
+  furnished?: boolean;
+  petFriendly?: boolean;
+  type?: PropertyType;
+  status?: PropertyStatus;
+  city?: string;
+  neighborhood?: string;
+  lat?: number;
+  lon?: number;
+  radius?: number;
+}
 
 export interface Property {
   propertyId: string;
