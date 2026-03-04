@@ -5,6 +5,7 @@ import {
 import { Ionicons } from '@expo/vector-icons'; 
 import Checkbox from 'expo-checkbox'; 
 import { useAuth } from '../lib/auth/AuthContext';
+import Logo from '../../assets/logo.png';
 
 export default function LoginScreen({ navigation }: any) {
   const { login, loading } = useAuth();
@@ -37,11 +38,10 @@ export default function LoginScreen({ navigation }: any) {
         
         <View style={styles.logoContainer}>
           <Image 
-            source={{ uri: 'https://via.placeholder.com/150' }} 
-            style={{ width: 100, height: 100 }} 
+            source={Logo} 
+            style={{ width: 320, height: 250 }} 
             resizeMode="contain"
           />
-          <Text style={styles.logoText}>Aluga<Text style={{color: '#4ADE80'}}>Fácil</Text></Text>
         </View>
 
         <View style={styles.tabContainer}>
@@ -64,7 +64,7 @@ export default function LoginScreen({ navigation }: any) {
         </View>
 
         <View style={styles.inputContainer}>
-          <Ionicons name="mail-outline" size={20} color="#666" style={styles.inputIcon} />
+          <Ionicons name="mail-outline" size={20} color="#2563EB" style={styles.inputIcon} />
           <TextInput
             style={styles.input}
             placeholder="E-mail ID"
@@ -75,7 +75,7 @@ export default function LoginScreen({ navigation }: any) {
         </View>
 
         <View style={styles.inputContainer}>
-          <Ionicons name="lock-closed-outline" size={20} color="#666" style={styles.inputIcon} />
+          <Ionicons name="lock-closed-outline" size={20} color="#2563EB" style={styles.inputIcon} />
           <TextInput
             style={styles.input}
             placeholder="Password"
@@ -163,7 +163,7 @@ const styles = StyleSheet.create({
 
   optionsContainer: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 },
   rememberContainer: { flexDirection: 'row', alignItems: 'center' },
-  checkbox: { marginRight: 8, borderRadius: 4 },
+  checkbox: { marginRight: 8, borderRadius: 4, color: '#2563EB' },
   rememberText: { color: '#666', fontSize: 13 },
   forgotText: { color: '#2563EB', fontWeight: '600', fontSize: 13 },
 
