@@ -31,6 +31,7 @@ export default function HomeScreen() {
   const [favorites, setFavorites] = useState<{ [key: string]: boolean }>({});
   const { user, logout } = useAuth();
   const userId = user?.user_id;
+  const navigation = useNavigation<any>();
   const [filterVisible, setFilterVisible] = useState(false);
   const [price, setPrice] = useState(5200);
   const [selectedBedrooms, setSelectedBedrooms] = useState<number | null>(2);
@@ -73,7 +74,7 @@ export default function HomeScreen() {
 
   const handleToggleFavorite = async (propertyId: string) => {
     try {
-      const isFavorited = await toggleFavorite(userId, propertyId);
+      const isFavorited = await toggleFavorite(userId!, propertyId);
 
       setFavorites((prev) => ({
         ...prev,
@@ -118,8 +119,8 @@ export default function HomeScreen() {
   };
   const renderItem = ({ item }: { item: Property }) => {
     const photo =
-      item.photoUrls?.length > 0
-        ? item.photoUrls[0]
+      item.photoUrls?.length! > 0
+        ? item.photoUrls![0]
         : 'https://via.placeholder.com/400';
 
     const price =
@@ -179,7 +180,9 @@ export default function HomeScreen() {
               />
             </View>
 
-            <TouchableOpacity style={styles.searchIconRight}>
+            <TouchableOpacity 
+              onPress={() => navigation.navigate('Map')} 
+              style={styles.searchIconRight}>
               <Ionicons name="map" size={16} color="#2563EB" />
             </TouchableOpacity>
           </View>
