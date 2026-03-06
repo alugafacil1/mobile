@@ -37,11 +37,11 @@ export default function LoginScreen({ navigation }: any) {
       <ScrollView contentContainerStyle={styles.scrollContent}>
         
         <View style={styles.logoContainer}>
-           <Image
-              source={Logo}
-              style={styles.logo}
-              resizeMode="contain"
-            />
+          <Image 
+            source={Logo} 
+            style={{ width: 320, height: 250 }} 
+            resizeMode="contain"
+          />
         </View>
 
         <View style={styles.tabContainer}>
@@ -64,7 +64,7 @@ export default function LoginScreen({ navigation }: any) {
         </View>
 
         <View style={styles.inputContainer}>
-          <Ionicons name="mail-outline" size={20} color="#666" style={styles.inputIcon} />
+          <Ionicons name="mail-outline" size={20} color="#2563EB" style={styles.inputIcon} />
           <TextInput
             style={styles.input}
             placeholder="E-mail ID"
@@ -75,7 +75,7 @@ export default function LoginScreen({ navigation }: any) {
         </View>
 
         <View style={styles.inputContainer}>
-          <Ionicons name="lock-closed-outline" size={20} color="#666" style={styles.inputIcon} />
+          <Ionicons name="lock-closed-outline" size={20} color="#2563EB" style={styles.inputIcon} />
           <TextInput
             style={styles.input}
             placeholder="Password"
@@ -163,7 +163,7 @@ const styles = StyleSheet.create({
 
   optionsContainer: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 },
   rememberContainer: { flexDirection: 'row', alignItems: 'center' },
-  checkbox: { marginRight: 8, borderRadius: 4 },
+  checkbox: { marginRight: 8, borderRadius: 4, color: '#2563EB' },
   rememberText: { color: '#666', fontSize: 13 },
   forgotText: { color: '#2563EB', fontWeight: '600', fontSize: 13 },
 
