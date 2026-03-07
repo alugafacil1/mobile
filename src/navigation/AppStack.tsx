@@ -3,6 +3,7 @@ import { createStackNavigator } from '@react-navigation/stack';
 import AppTabs from './AppTabs';
 import CreatePropertyScreen from '../screens/CreatePropertyScreen';
 import MapScreen from '../screens/MapScreen';
+import ProfileScreen from '../screens/ProfileScreen';
 
 const Stack = createStackNavigator();
 
@@ -25,6 +26,11 @@ export default function AppStack() {
         name="Map"
         component={MapScreen}
         options={{ title: 'Mapa' }}
+      />
+      <Stack.Screen
+        name="Profile"
+        component={ProfileScreen}
+        options={{ headerShown: false }}
       />
     </Stack.Navigator>
   );
