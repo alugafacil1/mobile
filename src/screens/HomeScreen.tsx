@@ -12,7 +12,7 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { getProperties } from '../services/propertyService';
-import { Property } from '../types/property';
+import { Property, PropertyFilterRequest } from '../types/property';
 import Logo from '../../assets/logo.png';
 import PropertyCard from '../components/PropertyCard';
 import { toggleFavorite, getUserFavorites } from '../services/favoriteService';
@@ -22,7 +22,7 @@ import { useFocusEffect } from "@react-navigation/native";
 import { Modal } from "react-native";
 import Slider from "@react-native-community/slider";
 
-export default function HomeScreen() {
+export default function HomeScreen({ route }: any) {
   const [properties, setProperties] = useState<Property[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -38,12 +38,14 @@ export default function HomeScreen() {
   const [selectedBathrooms, setSelectedBathrooms] = useState<number | null>(1);
   const [selectedGarage, setSelectedGarage] = useState<string>("Sem vaga");
   const [pets, setPets] = useState<string>("Sim");
-  const load = useCallback(async (isRefresh = false) => {
+  const [locationFilter, setLocationFilter] = useState<{ lat: number; lon: number; radius: number } | null>(null);
+
+  const load = useCallback(async (isRefresh = false, filters?: PropertyFilterRequest) => {
     if (isRefresh) setRefreshing(true);
     else setLoading(true);
 
     try {
-      const data = await getProperties();
+      const data = await getProperties(filters);
       setProperties(data);
       setError(null);
     } catch (err: any) {
@@ -85,9 +87,31 @@ export default function HomeScreen() {
     }
   };
 
+  const handleNavigateToProfile = () => {
+    navigation.navigate('Profile');
+  };
+
   useFocusEffect(
     useCallback(() => {
-      load();
+      // Verificar se há filtro de localização retornando do mapa
+      if (route?.params?.locationFilter) {
+        const filter = route?.params?.locationFilter;
+        setLocationFilter(filter);
+        
+        const filterRequest: PropertyFilterRequest = {
+          lat: filter.lat,
+          lon: filter.lon,
+          radius: filter.radius,
+        };
+        
+        load(false, filterRequest);
+        
+        // Limpar o parâmetro de rota
+        navigation.setParams({ locationFilter: null });
+      } else {
+        // Carregamento normal sem filtro
+        load();
+      }
       loadFavorites();
     }, [load, loadFavorites])
   );
@@ -166,7 +190,12 @@ export default function HomeScreen() {
             <View style={styles.header}>
               <Ionicons name="notifications-outline" size={24} />
               <Image source={Logo} style={styles.logoImage} />
-              <View style={styles.avatar} />
+              <TouchableOpacity 
+                onPress={handleNavigateToProfile}
+                style={styles.avatar}
+              >
+                <Ionicons name="person" size={20} color="#6B7280" />
+              </TouchableOpacity>
             </View>
 
             {/* Busca */}
@@ -186,6 +215,25 @@ export default function HomeScreen() {
               <Ionicons name="map" size={16} color="#2563EB" />
             </TouchableOpacity>
           </View>
+
+          {/* Indicador de filtro de localização ativo */}
+          {locationFilter && (
+            <View style={styles.locationFilterBadge}>
+              <Ionicons name="location" size={16} color="#fff" />
+              <Text style={styles.locationFilterText}>
+                Raio: {locationFilter.radius} km
+              </Text>
+              <TouchableOpacity 
+                onPress={() => {
+                  setLocationFilter(null);
+                  load();
+                }}
+                style={styles.clearFilterButton}
+              >
+                <Ionicons name="close" size={16} color="#fff" />
+              </TouchableOpacity>
+            </View>
+          )}
 
             {/* Títulos, ordenação e filtros */}
             <View style={styles.sectionHeader}>
@@ -439,6 +487,8 @@ const styles = StyleSheet.create({
     height: 36,
     borderRadius: 18,
     backgroundColor: '#E5E7EB',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 
   searchContainer: {
@@ -634,5 +684,27 @@ secondaryButton: {
   paddingVertical: 12,
   paddingHorizontal: 20,
   borderRadius: 6,
+},
+
+locationFilterBadge: {
+  flexDirection: 'row',
+  alignItems: 'center',
+  backgroundColor: '#2563EB',
+  paddingHorizontal: 12,
+  paddingVertical: 8,
+  borderRadius: 8,
+  marginBottom: 16,
+  gap: 8,
+},
+
+locationFilterText: {
+  fontSize: 14,
+  fontWeight: '500',
+  color: '#fff',
+  flex: 1,
+},
+
+clearFilterButton: {
+  padding: 4,
 },
 });
