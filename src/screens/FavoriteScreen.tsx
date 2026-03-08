@@ -13,13 +13,9 @@ import {
     getUserFavorites,
     toggleFavorite,
 } from "../services/favoriteService";
-import { Ionicons } from "@expo/vector-icons";
-import { TouchableOpacity } from "react-native";
-import { useNavigation } from "@react-navigation/native";
 
 
 export default function FavoritesScreen() {
-    const navigation = useNavigation();
     const { user } = useAuth();
     const userId = user?.user_id;
 
@@ -74,7 +70,7 @@ export default function FavoritesScreen() {
     if (properties.length === 0) {
         return (
             <View style={styles.center}>
-                <Text>Nenhum imóvel favoritado ainda.</Text>
+                <Text style={styles.text}>Nenhum imóvel favoritado ainda.</Text>
             </View>
         );
     }
@@ -82,16 +78,6 @@ export default function FavoritesScreen() {
 
     return (
         <View style={{ flex: 1, backgroundColor: "#F3F4F6" }}>
-            {/* Header (Lembrar de ver para melhorar isso) */}
-            <View style={styles.header}>
-                <TouchableOpacity onPress={() => navigation.goBack()}>
-                    <Ionicons name="arrow-back" size={22} color="#fff" />
-                </TouchableOpacity>
-
-                <Text style={styles.headerTitle}>Favoritos</Text>
-
-                <Ionicons name="heart" size={22} color="#fff" />
-            </View>
             <FlatList
                 data={properties}
                 keyExtractor={(item) => item.propertyId}
@@ -119,7 +105,6 @@ export default function FavoritesScreen() {
                 }}
             />
         </View>
-
     );
 }
 
@@ -129,20 +114,8 @@ const styles = StyleSheet.create({
         justifyContent: "center",
         alignItems: "center",
     },
-
-    header: {
-        height: 50,
-        paddingTop: 15,
-        paddingHorizontal: 16,
-        backgroundColor: "#2563EB",
-        flexDirection: "row",
-        alignItems: "center",
-        justifyContent: "space-between",
-    },
-
-    headerTitle: {
-        color: "#fff",
-        fontSize: 18,
-        fontWeight: "bold",
+    text: {
+        fontSize: 16,
+        color: "#000000",
     },
 });

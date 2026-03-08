@@ -25,7 +25,7 @@ export default function AppStack() {
       <Stack.Screen
         name="Map"
         component={MapScreen}
-        options={{ title: 'Mapa' }}
+        options={{ headerShown: false }}
       />
       <Stack.Screen
         name="Profile"
