@@ -18,6 +18,7 @@ export default function MapViewComponent({ onFilterApply }: { onFilterApply?: (l
   const [currentAddress, setCurrentAddress] = useState<string>("");
   const [selectedAddress, setSelectedAddress] = useState<string>("");
   const [loadingAddress, setLoadingAddress] = useState(false);
+  const [zoomLevel, setZoomLevel] = useState(14);
 
   useEffect(() => {
     let mounted = true;
@@ -45,12 +46,32 @@ export default function MapViewComponent({ onFilterApply }: { onFilterApply?: (l
   const getAddressFromCoordinates = async (lat: number, lon: number, isCurrent: boolean = false) => {
     try {
       setLoadingAddress(true);
-      const response = await fetch(
-        `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`
-      );
-      const data = await response.json();
       
-      const address = data.address?.road || data.address?.street || "Endereço não encontrado";
+      // Aguardar um pequeno delay para evitar rate limiting
+      await new Promise(resolve => setTimeout(resolve, 500));
+      
+      const response = await fetch(
+        `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`,
+        {
+          headers: {
+            'User-Agent': 'PropertyApp/1.0'
+          }
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error(`API retornou status ${response.status}`);
+      }
+
+      const text = await response.text();
+      
+      // Validar se a resposta é um JSON válido
+      if (!text || text.trim().length === 0) {
+        throw new Error("Resposta vazia da API");
+      }
+
+      const data = JSON.parse(text);
+      
       const street = data.address?.road || data.address?.street || "";
       const number = data.address?.house_number || "";
       const fullAddress = `${street}${number ? ", " + number : ""}`;
@@ -128,6 +149,38 @@ export default function MapViewComponent({ onFilterApply }: { onFilterApply?: (l
     }
   };
 
+  const calculateRadiusInPixels = () => {
+    if (!selectedPoint || zoomLevel === undefined) return parseFloat(radius || '1') * 32;
+
+    // Fórmula para converter raio em km para pixels baseado no zoom
+    // Raio do mapa = 40075 km
+    // Pixels por tile = 512
+    // Tiles no nível de zoom z = 2^z
+    const radiusKm = parseFloat(radius || '1');
+    const earthCircumference = 40075; // km
+    const pixelsPerTile = 512;
+    const tilesAtZoom = Math.pow(2, zoomLevel);
+    const pixelsAtZoom = pixelsPerTile * tilesAtZoom;
+    
+    // Ajustar pela latitude para projeção de Mercator
+    const latRad = (selectedPoint[1] * Math.PI) / 180;
+    const radiusPixels = (radiusKm / earthCircumference) * pixelsAtZoom * Math.cos(latRad);
+    
+    return radiusPixels;
+  };
+
+  const handleMapZoom = async (e: any) => {
+    try {
+      // Obter zoom diretamente da câmera do mapa
+      const camera = await mapRef.current?.getZoom();
+      if (camera !== undefined && camera !== null) {
+        setZoomLevel(camera);
+      }
+    } catch (err) {
+      // Ignorar erros ao obter zoom
+    }
+  };
+
   if (loading) {
     return (
       <View style={[styles.container, styles.center]}>
@@ -149,17 +202,20 @@ export default function MapViewComponent({ onFilterApply }: { onFilterApply?: (l
   const filterLon = useCurrentLocation ? lon : selectedPoint?.[0];
 
   return (
-    <View style={styles.container}>
+    <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : "height"} keyboardVerticalOffset={Platform.OS === "ios" ? 60 : 100} style={styles.container}>
       <MapLibreGL.MapView
         ref={mapRef}
         style={styles.map}
         mapStyle="https://tiles.openfreemap.org/styles/liberty"
         onPress={handleMapPress}
         onDidFinishLoadingMap={setPortugueseLabels}
+        onRegionDidChange={handleMapZoom}
       >
         <MapLibreGL.Camera
           zoomLevel={14}
-          centerCoordinate={[lon, lat]}
+          centerCoordinate={selectedPoint ? selectedPoint : [lon, lat]}
+          animationMode="flyTo"
+          animationDuration={500}
         />
 
         {/* Marcador da posição atual */}
@@ -179,14 +235,14 @@ export default function MapViewComponent({ onFilterApply }: { onFilterApply?: (l
               properties: {},
               geometry: {
                 type: 'Point',
-                coordinates: [filterLon, filterLat],
+                coordinates: [filterLon!, filterLat!],
               },
             }}
           >
             <MapLibreGL.CircleLayer
               id="radiusLayer"
               style={{
-                circleRadius: parseFloat(radius || '1') * 32, 
+                circleRadius: calculateRadiusInPixels(), 
                 circleColor: '#2563EB',
                 circleOpacity: 0.2,
                 circleStrokeWidth: 2,
@@ -229,39 +285,30 @@ export default function MapViewComponent({ onFilterApply }: { onFilterApply?: (l
       )}
 
       {/* Painel de filtro completo */}
-      {selectedPoint ? (
-        <KeyboardAvoidingView
-          behavior={Platform.OS === "ios" ? "padding" : "height"}
-          style={styles.keyboardAvoidingView}
-        >
+      {selectedPoint && (
+        <View style={styles.filterPanelContainer}>
           <View style={styles.filterPanel}>
-            <ScrollView 
-              contentContainerStyle={styles.filterContent}
-              showsVerticalScrollIndicator={false}
-              bounces={false}
-            >
-              <View style={styles.inputGroup}>
-                <Text style={styles.label}>Local</Text>
-                <View style={styles.location}>
-                  <Ionicons name="location" size={20} color="#2563EB" />
-                  <Text style={styles.locationText}>
-                    {useCurrentLocation ? currentAddress : selectedAddress}
-                  </Text>
-                </View>
+            <View style={styles.inputGroup}>
+              <Text style={styles.label}>Local</Text>
+              <View style={styles.location}>
+                <Ionicons name="location" size={20} color="#2563EB" />
+                <Text style={styles.locationText}>
+                  {useCurrentLocation ? currentAddress : selectedAddress}
+                </Text>
               </View>
+            </View>
 
-              <View style={styles.inputGroup}>
-                <Text style={styles.label}>Raio de Busca (km)</Text>
-                <TextInput
-                  style={styles.input}
-                  placeholder="1 (padrão)"
-                  keyboardType="decimal-pad"
-                  value={radius}
-                  onChangeText={setRadius}
-                  placeholderTextColor="#9CA3AF"
-                />
-              </View>
-            </ScrollView>
+            <View style={styles.inputGroup}>
+              <Text style={styles.label}>Raio de Busca (km)</Text>
+              <TextInput
+                style={styles.input}
+                placeholder="1 (padrão)"
+                keyboardType="decimal-pad"
+                value={radius}
+                onChangeText={setRadius}
+                placeholderTextColor="#9CA3AF"
+              />
+            </View>
 
             {/* Botões de ação */}
             <View style={styles.actionButtons}>
@@ -273,9 +320,9 @@ export default function MapViewComponent({ onFilterApply }: { onFilterApply?: (l
               </TouchableOpacity>
             </View>
           </View>
-        </KeyboardAvoidingView>
-      ) : null}
-    </View>
+        </View>
+      )}
+    </KeyboardAvoidingView>
   );
 }
 
@@ -303,11 +350,15 @@ const styles = StyleSheet.create({
     borderColor: "#FFFFFF",
   },
   keyboardAvoidingView: {
+    flex: 1,
+  },
+  filterPanelContainer: {
     position: "absolute",
     bottom: 0,
     left: 0,
     right: 0,
     zIndex: 1000,
+    width: "100%",
   },
   initialPanel: {
     position: "absolute",
@@ -326,8 +377,10 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.15,
     shadowRadius: 8,
     elevation: 8,
+    zIndex: 999,
   },
   initialPanelContent: {
+    position: "relative",
     flexDirection: "row",
     alignItems: "center",
     flex: 1,
@@ -354,14 +407,13 @@ const styles = StyleSheet.create({
     borderTopRightRadius: 16,
     paddingHorizontal: 16,
     paddingTop: 16,
-    paddingBottom: 20,
+    paddingBottom: 24,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: -2 },
     shadowOpacity: 0.1,
     shadowRadius: 8,
     elevation: 10,
-    maxHeight: "70%",
-    minHeight: 200,
+    position: "relative",
   },
   filterContent: {
     marginBottom: 16,
