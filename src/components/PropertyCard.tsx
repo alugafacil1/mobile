@@ -11,6 +11,7 @@ interface Props {
   total: string;
   isFavorite: boolean;
   onToggleFavorite: (propertyId: string) => void;
+  onPress: () => void;
 }
 
 export default function PropertyCard({
@@ -22,9 +23,10 @@ export default function PropertyCard({
   total,
   isFavorite,
   onToggleFavorite,
+  onPress
 }: Props) {
   return (
-    <View style={styles.card}>
+    <TouchableOpacity style={styles.card} onPress={onPress}>
       <Image source={{ uri: image }} style={styles.image} />
 
       <View style={styles.content}>
@@ -48,7 +50,7 @@ export default function PropertyCard({
           </TouchableOpacity>
         </View>
       </View>
-    </View>
+    </TouchableOpacity>
   );
 }
 

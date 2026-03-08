@@ -37,12 +37,19 @@ export default function HomeScreen() {
   const [selectedBathrooms, setSelectedBathrooms] = useState<number | null>(1);
   const [selectedGarage, setSelectedGarage] = useState<string>("Sem vaga");
   const [pets, setPets] = useState<string>("Sim");
-  const load = useCallback(async (isRefresh = false) => {
+  const navigation = useNavigation<any>();
+  const [filters, setFilters] = useState<any>({});
+  
+  const load = useCallback(async (isRefresh = false, customFilters?: any) => {
     if (isRefresh) setRefreshing(true);
     else setLoading(true);
 
     try {
-      const data = await getProperties();
+      const filtersToUse = customFilters ?? filters;
+
+      console.log(filtersToUse);
+
+      const data = await getProperties(filtersToUse);
       setProperties(data);
       setError(null);
     } catch (err: any) {
@@ -52,13 +59,13 @@ export default function HomeScreen() {
       if (isRefresh) setRefreshing(false);
       else setLoading(false);
     }
-  }, []);
+  }, [filters]);
 
   const loadFavorites = useCallback(async () => {
     if (!userId) return; 
     try {
       const data = await getUserFavorites(userId);
-      console.log(data);
+
       const mapped: { [key: string]: boolean } = {};
 
       data.forEach((fav: any) => {
@@ -84,11 +91,56 @@ export default function HomeScreen() {
     }
   };
 
+  const applyFilters = () => {
+
+    const newFilters: any = {
+      maxPrice: price,
+      minBedrooms: selectedBedrooms,
+      minBathrooms: selectedBathrooms,
+      garage: selectedGarage !== "Sem vaga",
+      petFriendly:
+        pets === "Sim"
+          ? true
+          : pets === "Não"
+          ? false
+          : undefined,
+    };
+
+    setFilters(newFilters);
+
+    setFilterVisible(false);
+
+    load(false, newFilters);
+  };
+
+  const clearFilters = () => {
+
+    setPrice(5200);
+    setSelectedBedrooms(null);
+    setSelectedBathrooms(null);
+    setSelectedGarage("Sem vaga");
+    setPets("Sim");
+
+    setFilters({});
+    setFilterVisible(false);
+    load(false, {});
+  };
+
+  const removeFilter = (key: string) => {
+    const newFilters = { ...filters };
+
+    delete newFilters[key];
+
+    setFilters(newFilters);
+
+    load(false, newFilters);
+  };
+
   useFocusEffect(
     useCallback(() => {
-      load();
+      load(false, filters);
       loadFavorites();
-    }, [load, loadFavorites])
+    }, [loadFavorites, filters])
   );
   
   if (loading) {
@@ -140,6 +192,11 @@ export default function HomeScreen() {
         total={`Total ${priceFormatted}`}
         isFavorite={favorites[item.propertyId] || false}
         onToggleFavorite={handleToggleFavorite}
+        onPress={() =>
+          navigation.navigate("PropertyDetails", {
+            property: item,
+          })
+        }
       />
     );
   };
@@ -173,7 +230,7 @@ export default function HomeScreen() {
             <View style={styles.searchLeft}>
               <Ionicons name="search-outline" size={18} color="#9CA3AF" />
               <TextInput
-                placeholder="Search any Product..."
+                placeholder="Procurar imóveis..."
                 placeholderTextColor="#9CA3AF"
                 style={styles.searchInput}
               />
@@ -205,6 +262,64 @@ export default function HomeScreen() {
                 </TouchableOpacity>
               </View>
             </View>
+
+            {Object.keys(filters).length > 0 && (
+              <View style={styles.filterChipsContainer}>
+
+                {/* <TouchableOpacity
+                  style={styles.filterButton}
+                  onPress={() => setFilterVisible(true)}
+                >
+                  <Ionicons name="filter" size={14} color="#2563EB" />
+                  <Text style={styles.filterButtonText}>Filtros</Text>
+                </TouchableOpacity> */}
+
+                {filters.petFriendly !== undefined && (
+                  <TouchableOpacity
+                    style={styles.filterChip}
+                    onPress={() => removeFilter("petFriendly")}
+                  >
+                    <Text style={styles.filterChipText}>
+                      {filters.petFriendly ? "Animais" : "Sem animais"}
+                    </Text>
+                    <Ionicons name="close" size={14} />
+                  </TouchableOpacity>
+                )}
+
+                {filters.minBedrooms && (
+                  <TouchableOpacity
+                    style={styles.filterChip}
+                    onPress={() => removeFilter("minBedrooms")}
+                  >
+                    <Text style={styles.filterChipText}>
+                      {filters.minBedrooms} dormitórios
+                    </Text>
+                    <Ionicons name="close" size={14} />
+                  </TouchableOpacity>
+                )}
+
+                {filters.minBathrooms && (
+                  <TouchableOpacity
+                    style={styles.filterChip}
+                    onPress={() => removeFilter("minBathrooms")}
+                  >
+                    <Text style={styles.filterChipText}>
+                      {filters.minBathrooms} banheiros
+                    </Text>
+                    <Ionicons name="close" size={14} />
+                  </TouchableOpacity>
+                )}
+                <Text style={{ marginBottom: 10, color: "#6B7280" }}>
+                  Foram encontrados {properties.length} imóveis
+                </Text>
+              </View>
+              
+            )}
+            
+            <TouchableOpacity onPress={logout}>
+              <Ionicons name="log-out-outline" size={20} color="#EF4444" />
+              <Text>Sair do App</Text>
+            </TouchableOpacity>
           </>
         }
         contentContainerStyle={{ padding: 16, paddingBottom: 120 }}
@@ -384,13 +499,13 @@ export default function HomeScreen() {
             <View style={styles.bottomButtons}>
               <TouchableOpacity
                 style={styles.primaryButton}
-                onPress={() => setFilterVisible(false)}
+                onPress={() => applyFilters()}
               >
                 <Text style={{ color: "#fff" }}>Filtrar</Text>
               </TouchableOpacity>
 
               <TouchableOpacity style={styles.secondaryButton}>
-                <Text style={{ color: "#2563EB" }}>Limpar filtros</Text>
+                <Text style={{ color: "#2563EB" }} onPress={clearFilters}>Limpar filtros</Text>
               </TouchableOpacity>
             </View>
 
@@ -423,11 +538,11 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 16,
+    marginBottom: 10,
   },
 
   logoImage: {
-    width: 130,
+    width: 100,
     height: 70,
   },
 
@@ -631,5 +746,43 @@ secondaryButton: {
   paddingVertical: 12,
   paddingHorizontal: 20,
   borderRadius: 6,
+},
+
+filterChipsContainer: {
+  flexDirection: "row",
+  flexWrap: "wrap",
+  gap: 8,
+  marginBottom: 10,
+},
+
+filterButton: {
+  flexDirection: "row",
+  alignItems: "center",
+  borderWidth: 1,
+  borderColor: "#2563EB",
+  borderRadius: 6,
+  paddingHorizontal: 10,
+  paddingVertical: 4,
+  gap: 4,
+},
+
+filterButtonText: {
+  color: "#2563EB",
+  fontSize: 12,
+},
+
+filterChip: {
+  flexDirection: "row",
+  alignItems: "center",
+  backgroundColor: "#DBEAFE",
+  borderRadius: 6,
+  paddingHorizontal: 8,
+  paddingVertical: 4,
+  gap: 4,
+},
+
+filterChipText: {
+  fontSize: 12,
+  color: "#1E40AF",
 },
 });
