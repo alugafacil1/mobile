@@ -181,7 +181,18 @@ export default function HomeScreen({ route }: any) {
         refreshControl={
           <RefreshControl
             refreshing={refreshing}
-            onRefresh={() => load(true)}
+            onRefresh={() => {
+              if (locationFilter) {
+                const filterRequest: PropertyFilterRequest = {
+                  lat: locationFilter.lat,
+                  lon: locationFilter.lon,
+                  radius: locationFilter.radius,
+                };
+                load(true, filterRequest);
+              } else {
+                load(true);
+              }
+            }}
           />
         }
         ListHeaderComponent={
