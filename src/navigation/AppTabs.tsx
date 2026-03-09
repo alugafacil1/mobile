@@ -3,9 +3,10 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Ionicons } from '@expo/vector-icons';
 import { View, TouchableOpacity, StyleSheet } from 'react-native';
 
-import HomeScreen from '../screens/HomeScreen';
+import HomeStack from './HomeStack';
 import PropertiesScreen from '../screens/PropertiesScreen';
 import FavoriteScreen from '../screens/FavoriteScreen';
+import ChatListScreen from '../screens/ChatListScreen';
 
 const Tab = createBottomTabNavigator();
 
@@ -22,7 +23,7 @@ export default function AppTabs() {
     >
       <Tab.Screen
         name="Home"
-        component={HomeScreen}
+        component={HomeStack}
         options={{
           tabBarIcon: ({ color, size, focused }) => (
             <Ionicons
@@ -71,7 +72,7 @@ export default function AppTabs() {
 
       <Tab.Screen
         name="Chat"
-        component={PropertiesScreen}
+        component={ChatListScreen}
         options={{
           tabBarIcon: ({ color, size, focused }) => (
             <Ionicons
