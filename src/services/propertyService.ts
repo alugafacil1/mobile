@@ -2,6 +2,55 @@ import { api } from './api';
 import { Property, PropertyFilterRequest } from '../types/property';
 import { PropertyRequest } from '../types/propertyRequest';
 
+/** Resposta do endpoint que combina properties e simpleProperties */
+interface CombinedPropertiesResponse {
+  properties?: {
+    content?: Property[];
+    [key: string]: unknown;
+  };
+  simpleProperties?: SimplePropertyResponse[];
+}
+
+/** Formato do SimpleProperty vindo do backend */
+interface SimplePropertyResponse {
+  id: string;
+  propertyType: string;
+  phoneNumber: string;
+  address?: Record<string, unknown>;
+  geolocation?: { latitude?: number; longitude?: number };
+  photoUrls?: string[];
+}
+
+function simplePropertyToProperty(simple: SimplePropertyResponse): Property {
+  const addr = simple.address ?? {};
+  const street = (addr.street ?? addr.endereco ?? '') as string;
+  const number = (addr.number ?? addr.numero ?? '') as string;
+  const city = (addr.city ?? addr.cidade ?? '') as string;
+  const state = (addr.state ?? addr.estado ?? '') as string;
+  const neighborhood = (addr.neighborhood ?? addr.bairro ?? '') as string;
+  const title = [street, number].filter(Boolean).join(', ') || 'Imóvel';
+  return {
+    propertyId: simple.id,
+    title,
+    address: {
+      street: street || undefined,
+      city: city || undefined,
+      state: state || undefined,
+      number: number || undefined,
+      neighborhood: neighborhood || undefined,
+    },
+    geolocation: simple.geolocation
+      ? {
+          latitude: simple.geolocation.latitude,
+          longitude: simple.geolocation.longitude,
+        }
+      : undefined,
+    phoneNumber: simple.phoneNumber,
+    photoUrls: simple.photoUrls ?? [],
+    type: (simple.propertyType === 'KITNET_STUDIO' ? 'APARTMENT' : simple.propertyType) as Property['type'],
+  };
+}
+
 export async function getProperties(filters?: PropertyFilterRequest, page = 0, size = 50): Promise<Property[]> {
   try {
 
@@ -27,22 +76,18 @@ export async function getProperties(filters?: PropertyFilterRequest, page = 0, s
 
     const config: any = { params };
 
-    const res = await api.get('/api/properties', config);
-    const payload = res.data as any;
+    const res = await api.get('/api/properties/with-simple', config);
+    const payload = res.data as CombinedPropertiesResponse;
 
-    if (payload && Array.isArray(payload.content)) {
-      console.log('Page.content length:', payload.content.length);
-      return payload.content as Property[];
+    const properties: Property[] = [];
+    if (payload?.properties?.content && Array.isArray(payload.properties.content)) {
+      properties.push(...payload.properties.content);
+    }
+    if (payload?.simpleProperties && Array.isArray(payload.simpleProperties)) {
+      properties.push(...payload.simpleProperties.map(simplePropertyToProperty));
     }
 
-    if (Array.isArray(payload)) {
-      return payload as Property[];
-    }
-
-    if (payload && Array.isArray(payload.items)) return payload.items as Property[];
-
-    console.warn('Formato inesperado de resposta de /api/properties, retornando array vazio', payload);
-    return [];
+    return properties;
   } catch (err) {
     console.error('Erro ao obter propriedades:', err);
     throw err;

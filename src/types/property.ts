@@ -15,7 +15,7 @@ export interface GeolocationResponse {
 
 export type PropertyStatus = 'ACTIVE' | 'PAUSED' | 'PLACED';
 
-export type PropertyType = 'APARTMENT' | 'HOUSE' | 'COMMERCIAL';
+export type PropertyType = 'APARTMENT' | 'HOUSE' | 'COMMERCIAL' | 'KITNET_STUDIO';
 
 export interface PropertyFilterRequest {
   minPrice?: number;
