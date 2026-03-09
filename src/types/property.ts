@@ -22,6 +22,7 @@ export interface PropertyFilterRequest {
   maxPrice?: number;
   minRooms?: number;
   minBedrooms?: number;
+  minBathrooms?: number;
   garage?: boolean;
   furnished?: boolean;
   petFriendly?: boolean;
