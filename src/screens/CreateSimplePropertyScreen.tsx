@@ -1,33 +1,35 @@
-import React, { useRef, useState } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import { View, TouchableOpacity, StyleSheet, Alert, Text, ActivityIndicator } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { CameraView, useCameraPermissions } from 'expo-camera';
 import * as ImagePicker from 'expo-image-picker';
 import { getCurrentLocation } from '../utils/utils';
+import { consumePhotoCallback, setPhotoCallback } from '../utils/photoCallbackRegistry';
 
 export default function CreateSimplePropertyScreen({ navigation, route }: any) {
   const cameraRef = useRef<CameraView>(null);
   const [permission, requestPermission] = useCameraPermissions();
   const [loadingLocation, setLoadingLocation] = useState(false);
 
-  const onPhotoTaken: ((uri: string) => void) | undefined = route.params?.onPhotoTaken;
   const skipLocation: boolean = route.params?.skipLocation ?? false;
 
+  useEffect(() => {
+    return () => setPhotoCallback(null);
+  }, []);
+
   const handlePhotoResult = async (photoUri: string) => {
-    // Modo "adicionar foto extra" — retorna via callback e volta
+    const onPhotoTaken = consumePhotoCallback();
     if (onPhotoTaken) {
       onPhotoTaken(photoUri);
       navigation.goBack();
       return;
     }
 
-    // Modo "primeira foto" sem busca de localização
     if (skipLocation) {
       navigation.navigate('SimplePropertyRegister', { photoUri });
       return;
     }
 
-    // Modo "primeira foto" com busca de localização e coordenadas
     setLoadingLocation(true);
     try {
       const { address, coords } = await getCurrentLocation();
@@ -87,18 +89,16 @@ export default function CreateSimplePropertyScreen({ navigation, route }: any) {
 
   return (
     <View style={styles.container}>
-      <CameraView ref={cameraRef} facing="back" style={styles.camera}>
-        <View style={styles.buttonContainer}>
-          <TouchableOpacity style={[styles.button, styles.cancelButton]} onPress={() => navigation.goBack()}>
-            <Ionicons name="close" size={24} color="#fff" />
-          </TouchableOpacity>
-          <TouchableOpacity style={[styles.button, styles.galleryButton]} onPress={handlePickFromGallery}>
-            <Ionicons name="images" size={24} color="#fff" />
-          </TouchableOpacity>
-        </View>
-      </CameraView>
-
-      <View style={styles.captureButtonContainer}>
+      <CameraView ref={cameraRef} facing="back" style={styles.camera} />
+      <View style={styles.buttonContainer} pointerEvents="box-none">
+        <TouchableOpacity style={[styles.button, styles.cancelButton]} onPress={() => navigation.goBack()}>
+          <Ionicons name="close" size={24} color="#fff" />
+        </TouchableOpacity>
+        <TouchableOpacity style={[styles.button, styles.galleryButton]} onPress={handlePickFromGallery}>
+          <Ionicons name="images" size={24} color="#fff" />
+        </TouchableOpacity>
+      </View>
+      <View style={styles.captureButtonContainer} pointerEvents="box-none">
         {loadingLocation ? (
           <View style={styles.loadingContainer}>
             <ActivityIndicator size="large" color="#fff" />
@@ -124,11 +124,15 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff', borderRadius: 8,
   },
   permissionButtonText: { color: '#000', fontWeight: 'bold' },
-  buttonContainer: { flex: 1, flexDirection: 'row', justifyContent: 'space-between', margin: 20 },
+  buttonContainer: {
+    position: 'absolute', top: 0, left: 0, right: 0,
+    flexDirection: 'row', justifyContent: 'space-between', margin: 20,
+  },
   button: { width: 50, height: 50, borderRadius: 25, justifyContent: 'center', alignItems: 'center' },
   cancelButton: { backgroundColor: 'rgba(0, 0, 0, 0.5)' },
   galleryButton: { backgroundColor: 'rgba(0, 0, 0, 0.5)' },
   captureButtonContainer: {
+    position: 'absolute', bottom: 0, left: 0, right: 0,
     flexDirection: 'row', justifyContent: 'center',
     alignItems: 'center', paddingBottom: 30, minHeight: 100,
   },

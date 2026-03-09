@@ -10,6 +10,7 @@ import * as ImagePicker from 'expo-image-picker';
 import { useFocusEffect } from '@react-navigation/native';
 import { createSimpleProperty } from '../services/simplePropertyService';
 import { SimplePropertyType, SimplePropertyRequest } from '../types/simpleProperty';
+import { setPhotoCallback } from '../utils/photoCallbackRegistry';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 const CAROUSEL_HEIGHT = 200;
@@ -73,12 +74,10 @@ export default function SimplePropertyRegisterScreen({ navigation, route }: any)
       {
         text: 'Câmera',
         onPress: () => {
-          navigation.navigate('CreateSimpleProperty', {
-            skipLocation: true,
-            onPhotoTaken: (uri: string) => {
-              pendingPhotoRef.current = uri;
-            },
+          setPhotoCallback((uri: string) => {
+            pendingPhotoRef.current = uri;
           });
+          navigation.navigate('CreateSimpleProperty', { skipLocation: true });
         },
       },
       {
@@ -163,7 +162,7 @@ export default function SimplePropertyRegisterScreen({ navigation, route }: any)
       await createSimpleProperty(payload);
 
       Alert.alert('Sucesso', 'Imóvel cadastrado com sucesso!', [
-        { text: 'OK', onPress: () => navigation.navigate('Home') },
+        { text: 'OK', onPress: () => navigation.navigate('Main', { screen: 'Home' }) },
       ]);
     } catch (error) {
       console.error('Erro ao salvar imóvel:', error);
