@@ -7,7 +7,6 @@ export async function getProperties(filters?: PropertyFilterRequest, page = 0, s
 
     const hasFilters = filters && Object.keys(filters).length > 0;
     const params: any = { page, size };
-    console.log('Construindo params para getProperties, filtros fornecidos:', filters);
 
     if (hasFilters && filters) {
       if (filters.minPrice != undefined) params.minPrice = filters.minPrice;

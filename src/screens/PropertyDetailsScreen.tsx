@@ -5,13 +5,16 @@ import {
   ScrollView,
   Image,
   StyleSheet,
-  TouchableOpacity,
   NativeScrollEvent,
   NativeSyntheticEvent,
   Dimensions,
   FlatList,
+  TouchableOpacity,
+  TextInput
 } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { Property } from '../types/property';
+import { useAuth } from "../lib/auth/AuthContext";
 
 const { width } = Dimensions.get('window');
 
@@ -24,32 +27,19 @@ interface PropertyDetailsScreenProps {
   navigation: any;
 }
 
-const translatePropertyType = (type: string): string => {
-  const translations: Record<string, string> = {
-    APARTMENT: 'Apartamento',
-    HOUSE: 'Casa',
-    COMMERCIAL: 'Comercial',
-  };
-  return translations[type] || type;
-};
-
-const translatePropertyStatus = (status: string): string => {
-  const translations: Record<string, string> = {
-    ACTIVE: 'Ativo',
-    PAUSED: 'Pausado',
-    PLACED: 'Anunciado',
-  };
-  return translations[status] || status;
-};
-
 export default function PropertyDetailsScreen({ route, navigation }: PropertyDetailsScreenProps) {
-  const { property } = route.params;
-  const [currentImageIndex, setCurrentImageIndex] = useState(0);
-  const scrollRef = useRef<FlatList>(null);
 
-  const photos = property.photoUrls && property.photoUrls.length > 0 
-    ? property.photoUrls 
-    : ['https://via.placeholder.com/400x200'];
+  const { property } = route.params;
+
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [showInterestForm, setShowInterestForm] = useState(false);
+  const [message, setMessage] = useState('');
+  const scrollRef = useRef<FlatList>(null);
+  const { user } = useAuth();
+  const photos =
+    property.photoUrls && property.photoUrls.length > 0
+      ? property.photoUrls
+      : ['https://via.placeholder.com/400x200'];
 
   const handleScroll = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
     const contentOffsetX = event.nativeEvent.contentOffset.x;
@@ -57,7 +47,8 @@ export default function PropertyDetailsScreen({ route, navigation }: PropertyDet
     setCurrentImageIndex(index);
   };
 
-  const price = property.priceInCents ? (property.priceInCents / 100) : 0;
+  const price = property.priceInCents ? property.priceInCents / 100 : 0;
+
   const priceFormatted = new Intl.NumberFormat('pt-BR', {
     style: 'currency',
     currency: 'BRL',
@@ -65,10 +56,7 @@ export default function PropertyDetailsScreen({ route, navigation }: PropertyDet
 
   const renderCarouselImage = ({ item }: { item: string }) => (
     <View style={styles.carouselItemContainer}>
-      <Image 
-        source={{ uri: item }} 
-        style={styles.carouselImage}
-      />
+      <Image source={{ uri: item }} style={styles.carouselImage} />
     </View>
   );
 
@@ -84,7 +72,7 @@ export default function PropertyDetailsScreen({ route, navigation }: PropertyDet
 
   return (
     <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
-      {/* Carrossel de imagens */}
+
       <View style={styles.carouselContainer}>
         <FlatList
           ref={scrollRef}
@@ -97,250 +85,328 @@ export default function PropertyDetailsScreen({ route, navigation }: PropertyDet
           onScroll={handleScroll}
           showsHorizontalScrollIndicator={false}
         />
-        {/* Indicadores */}
+
+        <TouchableOpacity
+          style={styles.backButton}
+          onPress={() => navigation.goBack()}
+        >
+          <Ionicons name="arrow-back" size={22} color="#fff" />
+        </TouchableOpacity>
+
+        <TouchableOpacity style={styles.favorite}>
+          <Ionicons name="heart-outline" size={22} color="#fff" />
+        </TouchableOpacity>
+
         <View style={styles.indicators}>
           {photos.map((_, index) => renderIndicator(index))}
         </View>
       </View>
 
-      {/* Informações principais */}
       <View style={styles.content}>
-        <Text style={styles.title}>{property.title}</Text>
-        <Text style={styles.price}>{priceFormatted}</Text>
 
-        {property.address && (
-          <Text style={styles.location}>
-            {property.address.street} {property.address.number}
-            {property.address.complement && `, ${property.address.complement}`}
-            {'\n'}
-            {property.address.city} - {property.address.neighborhood}
-          </Text>
-        )}
+        <Text style={styles.type}>
+          Apartamento • Aluguel
+        </Text>
+
+        <Text style={styles.address}>
+          {property.address?.street}, {property.address?.number} - {property.address?.city}
+        </Text>
+
+        <View style={styles.priceTable}>
+
+          <View style={styles.row}>
+            <Text style={styles.label}>Aluguel</Text>
+            <Text>{priceFormatted}</Text>
+          </View>
+
+          <View style={styles.rowTotal}>
+            <Text style={styles.label}>Total</Text>
+            <Text style={styles.total}>{priceFormatted}</Text>
+          </View>
+
+        </View>
+
+        <View style={styles.features}>
+
+          <View style={styles.feature}>
+            <Ionicons name="resize-outline" size={18} color="#2563EB"/>
+            <Text style={styles.featureText}>{property.numberOfRooms} Cômodos</Text>
+          </View>
+
+          <View style={styles.feature}>
+            <Ionicons name="bed-outline" size={18} color="#2563EB"/>
+            <Text style={styles.featureText}>{property.numberOfBedrooms} Quartos</Text>
+          </View>
+
+          <View style={styles.feature}>
+            <Ionicons name="water-outline" size={18} color="#2563EB"/>
+            <Text style={styles.featureText}>{property.numberOfBathrooms} Banheiros</Text>
+          </View>
+
+        </View>
 
         {property.description && (
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Descrição</Text>
-            <Text style={styles.description}>{property.description}</Text>
-          </View>
-        )}
 
-        {/* Características */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Características</Text>
-          <View style={styles.featuresGrid}>
-            {property.numberOfBedrooms !== undefined && (
-              <View style={styles.featureItem}>
-                <Text style={styles.featureValue}>{property.numberOfBedrooms}</Text>
-                <Text style={styles.featureLabel}>Quartos</Text>
-              </View>
-            )}
-            {property.numberOfBathrooms !== undefined && (
-              <View style={styles.featureItem}>
-                <Text style={styles.featureValue}>{property.numberOfBathrooms}</Text>
-                <Text style={styles.featureLabel}>Banheiros</Text>
-              </View>
-            )}
-            {property.numberOfRooms !== undefined && (
-              <View style={styles.featureItem}>
-                <Text style={styles.featureValue}>{property.numberOfRooms}</Text>
-                <Text style={styles.featureLabel}>Cômodos</Text>
-              </View>
-            )}
-          </View>
-        </View>
-
-        {/* Comodidades */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Comodidades</Text>
-          <View style={styles.amenitiesList}>
-            {property.furnished && (
-              <Text style={styles.amenity}>✓ Mobiliado</Text>
-            )}
-            {property.petFriendly && (
-              <Text style={styles.amenity}>✓ Permite animais</Text>
-            )}
-            {property.garage && (
-              <Text style={styles.amenity}>✓ Garagem</Text>
-            )}
-          </View>
-        </View>
-
-        {/* Tipo e Status */}
-        {(property.type || property.status) && (
-          <View style={styles.section}>
-            <View style={styles.typeStatusRow}>
-              {property.type && (
-                <View style={[styles.badge, styles.badgeType]}>
-                  <Text style={styles.badgeText}>{translatePropertyType(property.type)}</Text>
-                </View>
-              )}
-              {property.status && (
-                <View style={[styles.badge, styles.badgeStatus]}>
-                  <Text style={styles.badgeText}>{translatePropertyStatus(property.status)}</Text>
-                </View>
-              )}
-            </View>
-          </View>
-        )}
-
-        {/* Contato */}
-        {property.phoneNumber && (
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Contato</Text>
-            <Text style={styles.contact}>{property.phoneNumber}</Text>
-          </View>
-        )}
-
-        {/* Data de criação */}
-        {property.createdAt && (
-          <View style={styles.footer}>
-            <Text style={styles.footerText}>
-              Cadastrado em {new Date(property.createdAt).toLocaleDateString('pt-BR')}
+          <>
+            <Text style={styles.sectionTitle}>
+              Descrição do imóvel
             </Text>
-          </View>
+
+            <Text style={styles.description}>
+              {property.description}
+            </Text>
+
+          </>
         )}
+
+          {!showInterestForm && (
+            <TouchableOpacity
+              style={styles.button}
+              onPress={() => setShowInterestForm(true)}
+            >
+              <Text style={styles.buttonText}>
+                Tenho interesse
+              </Text>
+            </TouchableOpacity>
+          )}
+
+          {showInterestForm && (
+            <View style={styles.interestContainer}>
+
+              <View style={styles.interestHeader}>
+                <Text style={styles.interestTitle}>Tenho interesse</Text>
+
+                <TouchableOpacity onPress={() => setShowInterestForm(false)}>
+                  <Text style={{ fontSize: 18 }}>×</Text>
+                </TouchableOpacity>
+              </View>
+
+              <Text style={styles.label}>Nome do Responsável</Text>
+
+              <View style={styles.inputDisabled}>
+                <Text style={{ color: "#fff" }}>
+                  {user?.name}
+                </Text>
+              </View>
+
+              <Text style={styles.label}>Mensagem</Text>
+
+              <TextInput
+                style={styles.textArea}
+                placeholder="Mensagem"
+                multiline
+                value={message}
+                onChangeText={setMessage}
+              />
+
+              <TouchableOpacity style={styles.chatButton}>
+                <Text style={styles.chatButtonText}>
+                  Iniciar chat
+                </Text>
+              </TouchableOpacity>
+
+            </View>
+        )}
+
       </View>
+
     </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-  },
-  carouselContainer: {
-    position: 'relative',
-    height: 250,
-    backgroundColor: '#f0f0f0',
-  },
-  carouselItemContainer: {
-    width: width,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  carouselImage: {
-    width: width,
-    height: 250,
-    resizeMode: 'cover',
-  },
-  indicators: {
-    position: 'absolute',
-    bottom: 12,
-    left: 0,
-    right: 0,
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  indicator: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-    backgroundColor: 'rgba(255, 255, 255, 0.5)',
-    marginHorizontal: 4,
-  },
-  indicatorActive: {
-    backgroundColor: '#fff',
-    width: 10,
-    height: 10,
-  },
-  content: {
-    padding: 16,
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    marginBottom: 8,
-  },
-  price: {
-    fontSize: 20,
-    fontWeight: '600',
-    color: '#2563EB',
-    marginBottom: 12,
-  },
-  location: {
-    fontSize: 14,
-    color: '#666',
-    marginBottom: 16,
-    lineHeight: 20,
-  },
-  section: {
-    marginBottom: 16,
-  },
-  sectionTitle: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    marginBottom: 8,
-  },
-  description: {
-    fontSize: 14,
-    color: '#555',
-    lineHeight: 20,
-  },
-  featuresGrid: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    backgroundColor: '#f9f9f9',
-    borderRadius: 8,
-    padding: 12,
-  },
-  featureItem: {
-    alignItems: 'center',
-  },
-  featureValue: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: '#2563EB',
-  },
-  featureLabel: {
-    fontSize: 12,
-    color: '#666',
-    marginTop: 4,
-  },
-  amenitiesList: {
-    backgroundColor: '#f9f9f9',
-    borderRadius: 8,
-    padding: 12,
-  },
-  amenity: {
-    fontSize: 14,
-    color: '#333',
-    marginBottom: 8,
-  },
-  typeStatusRow: {
-    flexDirection: 'row',
-    gap: 8,
-  },
-  badge: {
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 6,
-  },
-  badgeType: {
-    backgroundColor: '#E3F2FD',
-  },
-  badgeStatus: {
-    backgroundColor: '#F3E5F5',
-  },
-  badgeText: {
-    fontSize: 12,
-    fontWeight: '600',
-    color: '#333',
-  },
-  contact: {
-    fontSize: 14,
-    fontWeight: '500',
-    color: '#2563EB',
-  },
-  footer: {
-    marginTop: 24,
-    paddingTop: 16,
-    borderTopWidth: 1,
-    borderTopColor: '#e0e0e0',
-  },
-  footerText: {
-    fontSize: 12,
-    color: '#999',
-  },
+
+container:{
+flex:1,
+backgroundColor:"#F3F4F6"
+},
+
+carouselContainer:{
+position:"relative",
+height:260
+},
+
+carouselItemContainer:{
+width:width
+},
+
+carouselImage:{
+width:width,
+height:260,
+resizeMode:"cover"
+},
+
+indicators:{
+position:"absolute",
+bottom:12,
+left:0,
+right:0,
+flexDirection:"row",
+justifyContent:"center"
+},
+
+indicator:{
+width:8,
+height:8,
+borderRadius:4,
+backgroundColor:"rgba(255,255,255,0.5)",
+marginHorizontal:4
+},
+
+indicatorActive:{
+backgroundColor:"#fff",
+width:10,
+height:10
+},
+
+favorite: {
+  position: "absolute",
+  top: 45,
+  right: 20,
+  padding: 8,
+  borderRadius: 20,
+},
+
+content:{
+backgroundColor:"#fff",
+marginTop:-20,
+borderTopLeftRadius:20,
+borderTopRightRadius:20,
+padding:16
+},
+
+type:{
+fontSize:12,
+color:"#6B7280",
+marginBottom:4
+},
+
+address:{
+fontSize:16,
+fontWeight:"bold",
+color:"#2563EB",
+marginBottom:14
+},
+
+priceTable:{
+borderTopWidth:1,
+borderBottomWidth:1,
+borderColor:"#E5E7EB",
+paddingVertical:10,
+marginBottom:16
+},
+
+row:{
+flexDirection:"row",
+justifyContent:"space-between",
+marginBottom:6
+},
+
+rowTotal:{
+flexDirection:"row",
+justifyContent:"space-between"
+},
+
+label:{
+color:"#6B7280"
+},
+
+total:{
+fontWeight:"bold",
+color:"#2563EB"
+},
+
+features:{
+flexDirection:"row",
+justifyContent:"space-around",
+marginBottom:20
+},
+
+feature:{
+alignItems:"center"
+},
+
+featureText:{
+fontSize:12,
+marginTop:4
+},
+
+sectionTitle:{
+fontWeight:"bold",
+marginBottom:6,
+color: "#2563EB"
+},
+
+description:{
+color:"#6B7280",
+lineHeight:20,
+marginBottom:20
+},
+
+button:{
+backgroundColor:"#2563EB",
+padding:14,
+borderRadius:6,
+alignItems:"center"
+},
+
+buttonText:{
+color:"#fff",
+fontWeight:"bold"
+},
+
+backButton: {
+  position: "absolute",
+  top: 45,
+  left: 16,
+},
+
+interestContainer:{
+marginTop:20,
+backgroundColor:"#fff",
+padding:16,
+borderRadius:8
+},
+
+interestHeader:{
+flexDirection:"row",
+justifyContent:"space-between",
+alignItems:"center",
+marginBottom:16
+},
+
+interestTitle:{
+fontSize:16,
+color:"#2563EB",
+fontWeight:"bold"
+},
+
+inputDisabled:{
+backgroundColor:"#4F8FE6",
+padding:10,
+borderRadius:4,
+marginBottom:16
+},
+
+textArea:{
+borderWidth:1,
+borderColor:"#3B82F6",
+borderRadius:4,
+height:120,
+padding:10,
+textAlignVertical:"top",
+marginBottom:20
+},
+
+chatButton:{
+backgroundColor:"#4F8FE6",
+padding:12,
+alignItems:"center",
+borderRadius:4
+},
+
+chatButtonText:{
+color:"#fff",
+fontWeight:"bold"
+},
 });
