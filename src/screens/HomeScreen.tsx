@@ -372,11 +372,6 @@ export default function HomeScreen({ route }: any) {
               </View>
               
             )}
-            
-            <TouchableOpacity onPress={logout}>
-              <Ionicons name="log-out-outline" size={20} color="#EF4444" />
-              <Text>Sair do App</Text>
-            </TouchableOpacity>
           </>
         }
         contentContainerStyle={{ padding: 16, paddingBottom: 120 }}
