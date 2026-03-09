@@ -6,6 +6,7 @@ import { View, TouchableOpacity, StyleSheet } from 'react-native';
 import HomeScreen from '../screens/HomeScreen';
 import PropertiesScreen from '../screens/PropertiesScreen';
 import FavoriteScreen from '../screens/FavoriteScreen';
+import CreateSimplePropertyScreen from '../screens/CreateSimplePropertyScreen';
 
 const Tab = createBottomTabNavigator();
 
@@ -50,7 +51,7 @@ export default function AppTabs() {
 
       <Tab.Screen
         name="Create"
-        component={PropertiesScreen}
+        component={CreateSimplePropertyScreen}
         options={{
           tabBarLabel: '',
           tabBarIcon: () => (
