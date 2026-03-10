@@ -16,7 +16,6 @@ api.interceptors.response.use(
         await SecureStore.deleteItemAsync('token');
         await SecureStore.deleteItemAsync('user');
         
-        // Limpar header de autorização
         delete api.defaults.headers.common['Authorization'];
         
         console.log('Token expirado. Usuário deslogado.');
@@ -24,7 +23,6 @@ api.interceptors.response.use(
         console.error('Erro ao limpar storage:', storageError);
       }
     }
-    return Promise.reject(error);
   }
 );
 
