@@ -15,13 +15,14 @@ export interface GeolocationResponse {
 
 export type PropertyStatus = 'ACTIVE' | 'PAUSED' | 'PLACED';
 
-export type PropertyType = 'APARTMENT' | 'HOUSE' | 'COMMERCIAL';
+export type PropertyType = 'APARTMENT' | 'HOUSE' | 'COMMERCIAL' | 'KITNET_STUDIO';
 
 export interface PropertyFilterRequest {
   minPrice?: number;
   maxPrice?: number;
   minRooms?: number;
   minBedrooms?: number;
+  minBathrooms?: number;
   garage?: boolean;
   furnished?: boolean;
   petFriendly?: boolean;

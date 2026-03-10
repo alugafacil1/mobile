@@ -27,9 +27,9 @@ export default function MapViewComponent({ onFilterApply }: { onFilterApply?: (l
       try {
         const loc = await getCurrentLocation();
         if (mounted) {
-          setLocation(loc);
+          setLocation(loc.coords);
           // Buscar endereço da localização atual
-          await getAddressFromCoordinates(loc.lat, loc.lon, true);
+          await getAddressFromCoordinates(loc.coords.lat, loc.coords.lon, true);
         }
       } catch (e: any) {
         if (mounted) setError(e?.message ?? "Erro ao obter localização");
