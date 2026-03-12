@@ -22,7 +22,7 @@ export default function AppTabs() {
       }}
     >
       <Tab.Screen
-        name="Home"
+        name="Início"
         component={HomeStack}
         options={{
           tabBarIcon: ({ color, size, focused }) => (
@@ -36,7 +36,7 @@ export default function AppTabs() {
       />
 
       <Tab.Screen
-        name="Favorites"
+        name="Favoritos"
         component={FavoriteScreen}
         options={{
           tabBarIcon: ({ color, size, focused }) => (
@@ -50,7 +50,7 @@ export default function AppTabs() {
       />
 
       <Tab.Screen
-        name="Create"
+        name="Criar"
         component={PropertiesScreen}
         options={{
           tabBarLabel: '',
@@ -85,7 +85,7 @@ export default function AppTabs() {
       />
 
       <Tab.Screen
-        name="Preferences"
+        name="Preferências"
         component={PropertiesScreen}
         options={{
           tabBarIcon: ({ color, size, focused }) => (
@@ -97,6 +97,8 @@ export default function AppTabs() {
           ),
         }}
       />
+
+      
     </Tab.Navigator>
   );
 }
