@@ -4,9 +4,6 @@ import { SimpleProperty, SimplePropertyRequest } from '../types/simpleProperty';
 export async function createSimpleProperty(data: SimplePropertyRequest, photos: string[]) {
   const formData = new FormData();
 
-  console.log("Dados enviados:", JSON.stringify(data, null, 2));
-  console.log("Imagem URIs:", photos);
-
   formData.append("request", JSON.stringify(data));
 
   photos.forEach((uri, index) => {
@@ -15,7 +12,6 @@ export async function createSimpleProperty(data: SimplePropertyRequest, photos: 
       name: `photo_${index}.jpg`,
       type: "image/jpeg",
     };
-    console.log(`Adicionando arquivo ${index}:`, fileData);
     formData.append("files", fileData as any);
   });
 
@@ -27,13 +23,8 @@ export async function createSimpleProperty(data: SimplePropertyRequest, photos: 
       },
     });
 
-    console.log("Resposta do servidor:", response.data);
     return response.data;
   } catch (error: any) {
-    console.error("Erro completo:", error);
-    console.error("Response data:", error.response?.data);
-    console.error("Response status:", error.response?.status);
-    console.error("Response headers:", error.response?.headers);
     throw error;
   }
 }
@@ -41,7 +32,7 @@ export async function createSimpleProperty(data: SimplePropertyRequest, photos: 
 export async function getSimpleProperty(id: string): Promise<SimpleProperty> {
   try {
     const response = await api.get(`/api/properties/simple/${id}`);
-    console.log("Resposta do servidor:", response.data);
+
     return response.data as SimpleProperty;
   } catch (error) {
     console.error('Erro ao obter SimpleProperty:', error);
