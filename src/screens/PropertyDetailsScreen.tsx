@@ -15,6 +15,8 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import { Property } from '../types/property';
 import { useAuth } from "../lib/auth/AuthContext";
+import { ref, push, serverTimestamp } from "firebase/database";
+import { db } from "../lib/firebaseConfig";
 import PropertyLocationMap from '../components/PropertyLocationMap';
 
 const { width } = Dimensions.get('window');
@@ -71,6 +73,37 @@ export default function PropertyDetailsScreen({ route, navigation }: PropertyDet
     />
   );
 
+async function startChat(){
+
+  if(!user?.user_id) return
+
+  const otherUserId = property.ownerId
+
+  const roomId = [otherUserId, user.user_id]
+    .sort()
+    .join("_")
+
+  const text = message.trim()
+
+  if(!text) return
+
+  const msgsRef = ref(db, `chats/${roomId}/messages`)
+
+  await push(msgsRef,{
+    text,
+    senderId: user.user_id,
+    senderName: user.name,
+    timestamp: serverTimestamp()
+  })
+
+  setMessage("")
+
+  navigation.navigate("Chat",{
+    roomId,
+    otherUserId
+  })
+
+}
   return (
     <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
 
@@ -94,9 +127,9 @@ export default function PropertyDetailsScreen({ route, navigation }: PropertyDet
           <Ionicons name="arrow-back" size={22} color="#fff" />
         </TouchableOpacity>
 
-        <TouchableOpacity style={styles.favorite}>
+        {/* <TouchableOpacity style={styles.favorite}>
           <Ionicons name="heart-outline" size={22} color="#fff" />
-        </TouchableOpacity>
+        </TouchableOpacity> */}
 
         <View style={styles.indicators}>
           {photos.map((_, index) => renderIndicator(index))}
@@ -212,7 +245,7 @@ export default function PropertyDetailsScreen({ route, navigation }: PropertyDet
                 onChangeText={setMessage}
               />
 
-              <TouchableOpacity style={styles.chatButton}>
+              <TouchableOpacity style={styles.chatButton} onPress={startChat}>
                 <Text style={styles.chatButtonText}>
                   Iniciar chat
                 </Text>

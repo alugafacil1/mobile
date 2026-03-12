@@ -5,7 +5,7 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '../../src/lib/auth/AuthContext';
 import Logo from '../../assets/logo.png';
-
+import MaskInput from "react-native-mask-input";
 export default function RegisterScreen({ navigation }: any) {
   const { signUp } = useAuth();
   const [step, setStep] = useState(1);
@@ -18,14 +18,31 @@ export default function RegisterScreen({ navigation }: any) {
   const [cpf, setCpf] = useState('');
 
   async function handleRegister() {
+
     if (!name || !email || !password || !phone || !cpf) {
       Alert.alert("Erro", "Preencha todos os campos.");
       return;
     }
 
+    if(!validateEmail(email)){
+      Alert.alert("Email inválido")
+      return
+    }
+
+    if(!validateCPF(cpf)){
+      Alert.alert("CPF inválido")
+      return
+    }
+
+    if(!validatePhone(phone)){
+      Alert.alert("Telefone inválido")
+      return
+    }
+    
+
     setLoading(true);
     try {
-      await signUp(name, email, phone, cpf, 'locatario', password);
+      await signUp(name, email, cleanNumber(phone), cleanNumber(cpf), 'locatario', password);
       
       Alert.alert("Sucesso", "Conta criada com sucesso!", [
         { text: "Fazer Login", onPress: () => navigation.navigate("Login") }
@@ -38,6 +55,26 @@ export default function RegisterScreen({ navigation }: any) {
     }
   }
 
+  function cleanNumber(value){
+    return value.replace(/\D/g,"")
+  }
+
+  function validateEmail(email){
+    const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+    return regex.test(email)
+  }
+
+  function validateCPF(cpf){
+
+    const cleaned = cpf.replace(/\D/g,"")
+
+    return cleaned.length === 11
+  }
+
+  function validatePhone(phone){
+    const cleaned = phone.replace(/\D/g,"")
+    return cleaned.length >= 10
+  }
   const renderStep1 = () => (
     <View style={styles.stepContainer}>
       <View style={styles.inputContainer}>
@@ -52,13 +89,13 @@ export default function RegisterScreen({ navigation }: any) {
 
       <View style={styles.inputContainer}>
         <Ionicons name="mail-outline" size={20} color="#2563EB" style={styles.inputIcon} />
-        <TextInput 
-          style={styles.input} 
-          placeholder="Email"
+        <TextInput
           value={email}
           onChangeText={setEmail}
-          autoCapitalize="none"
+          placeholder="Email"
           keyboardType="email-address"
+          autoCapitalize="none"
+          style={styles.input}
         />
       </View>
 
@@ -75,23 +112,42 @@ export default function RegisterScreen({ navigation }: any) {
 
       <View style={styles.inputContainer}>
         <Ionicons name="call-outline" size={20} color="#2563EB" style={styles.inputIcon} />
-        <TextInput 
-          style={styles.input} 
-          placeholder="Telefone"
+        <MaskInput
           value={phone}
-          onChangeText={setPhone}
-          keyboardType="phone-pad"
+          onChangeText={(masked) => setPhone(masked)}
+          mask={[
+            "(",
+            /\d/,/\d/,
+            ")",
+            " ",
+            /\d/,
+            /\d/,/\d/,/\d/,/\d/,
+            "-",
+            /\d/,/\d/,/\d/,/\d/
+          ]}
+          keyboardType="numeric"
+          placeholder="Telefone"
+          style={styles.input}
         />
       </View>
 
       <View style={styles.inputContainer}>
         <Ionicons name="card-outline" size={20} color="#2563EB" style={styles.inputIcon} />
-        <TextInput 
-          style={styles.input} 
-          placeholder="CPF"
+        <MaskInput
           value={cpf}
-          onChangeText={setCpf}
+          onChangeText={(masked, unmasked) => setCpf(masked)}
+          mask={[
+            /\d/,/\d/,/\d/,
+            ".",
+            /\d/,/\d/,/\d/,
+            ".",
+            /\d/,/\d/,/\d/,
+            "-",
+            /\d/,/\d/
+          ]}
           keyboardType="numeric"
+          placeholder="CPF"
+          style={styles.input}
         />
       </View>
 
@@ -101,7 +157,7 @@ export default function RegisterScreen({ navigation }: any) {
         disabled={loading}
       >
         <Text style={styles.actionButtonText}>
-            {loading ? "Criando..." : "Register"}
+            {loading ? "Cadastrando..." : "Cadastrar"}
         </Text>
       </TouchableOpacity>
     </View>
@@ -133,7 +189,7 @@ export default function RegisterScreen({ navigation }: any) {
           </TouchableOpacity>
           
           <TouchableOpacity style={[styles.tabButton, styles.activeTab]}>
-            <Text style={styles.activeTabText}>Register</Text>
+            <Text style={styles.activeTabText}>Cadastrar</Text>
           </TouchableOpacity>
         </View>
 

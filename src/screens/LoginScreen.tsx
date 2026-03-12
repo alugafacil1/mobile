@@ -59,7 +59,7 @@ export default function LoginScreen({ navigation }: any) {
               navigation.navigate('Register');
             }}
           >
-            <Text style={[styles.tabText, activeTab === 'Register' && styles.activeTabText]}>Register</Text>
+            <Text style={[styles.tabText, activeTab === 'Register' && styles.activeTabText]}>Cadastrar</Text>
           </TouchableOpacity>
         </View>
 
@@ -67,7 +67,7 @@ export default function LoginScreen({ navigation }: any) {
           <Ionicons name="mail-outline" size={20} color="#2563EB" style={styles.inputIcon} />
           <TextInput
             style={styles.input}
-            placeholder="E-mail ID"
+            placeholder="E-mail"
             value={email}
             onChangeText={setEmail}
             autoCapitalize="none"
@@ -78,7 +78,7 @@ export default function LoginScreen({ navigation }: any) {
           <Ionicons name="lock-closed-outline" size={20} color="#2563EB" style={styles.inputIcon} />
           <TextInput
             style={styles.input}
-            placeholder="Password"
+            placeholder="Senha"
             value={password}
             onChangeText={setPassword}
             secureTextEntry
@@ -94,10 +94,10 @@ export default function LoginScreen({ navigation }: any) {
               onValueChange={setChecked}
               color={isChecked ? '#2563EB' : undefined}
             />
-            <Text style={styles.rememberText}>Remember me</Text>
+            <Text style={styles.rememberText}>Lembrar me</Text>
           </View>
           <TouchableOpacity>
-            <Text style={styles.forgotText}>Forget Password?</Text>
+            <Text style={styles.forgotText}>Esqueceu sua senha?</Text>
           </TouchableOpacity>
         </View>
 
@@ -109,7 +109,7 @@ export default function LoginScreen({ navigation }: any) {
 
         <View style={styles.dividerContainer}>
           <View style={styles.dividerLine} />
-          <Text style={styles.dividerText}>Or login with</Text>
+          <Text style={styles.dividerText}>Ou logue com</Text>
           <View style={styles.dividerLine} />
         </View>
 
