@@ -2,7 +2,7 @@ import axios from 'axios';
 import * as SecureStore from 'expo-secure-store';
 
 const api = axios.create({
-  baseURL: 'https://alugafacil-back.onrender.com/',
+  baseURL: 'https://alugafacil-back-main.onrender.com/',
 });
 
 api.interceptors.response.use(

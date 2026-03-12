@@ -61,7 +61,7 @@ export default function ChatListScreen() {
 
           const otherUserId = roomId.split("_").find(id => id !== userId);
          
-          const otherUser = await getUserById(otherUserId);
+          const otherUser = await getUserById(otherUserId!);
 
           return {
             roomId,
@@ -183,10 +183,7 @@ export default function ChatListScreen() {
       <View style={styles.searchContainer}>
 
         <Ionicons name="search" size={18} color="#9CA3AF" />
-        <TouchableOpacity onPress={logout}>
-                    <Ionicons name="log-out-outline" size={20} color="#EF4444" />
-                    <Text>Sair do App</Text>
-                  </TouchableOpacity>
+        
         <TextInput
           placeholder="Pesquisar"
           value={search}
