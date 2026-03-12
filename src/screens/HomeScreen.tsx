@@ -306,7 +306,7 @@ export default function HomeScreen({ route }: any) {
 
               <View style={styles.actions}>
                 <TouchableOpacity style={styles.actionButton}>
-                  <Text style={styles.actionText}>Sort</Text>
+                  <Text style={styles.actionText}>Ordenar</Text>
                   <Ionicons name="swap-vertical" size={14} />
                 </TouchableOpacity>
 
@@ -314,7 +314,7 @@ export default function HomeScreen({ route }: any) {
                   style={styles.actionButton}
                   onPress={() => setFilterVisible(true)}
                 >
-                  <Text style={styles.actionText}>Filter</Text>
+                  <Text style={styles.actionText}>Filtrar</Text>
                   <Ionicons name="filter" size={14} />
                 </TouchableOpacity>
               </View>
