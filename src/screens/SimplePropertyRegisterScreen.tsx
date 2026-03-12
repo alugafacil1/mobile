@@ -159,7 +159,7 @@ export default function SimplePropertyRegisterScreen({ navigation, route }: any)
         photoUrls: photos,
       };
 
-      await createSimpleProperty(payload);
+      await createSimpleProperty(payload, photos);
 
       Alert.alert('Sucesso', 'Imóvel cadastrado com sucesso!', [
         { text: 'OK', onPress: () => navigation.navigate('Main', { screen: 'Home' }) },
