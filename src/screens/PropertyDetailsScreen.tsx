@@ -17,6 +17,7 @@ import { Property } from '../types/property';
 import { useAuth } from "../lib/auth/AuthContext";
 import { ref, push, serverTimestamp } from "firebase/database";
 import { db } from "../lib/firebaseConfig";
+import PropertyLocationMap from '../components/PropertyLocationMap';
 
 const { width } = Dimensions.get('window');
 
@@ -177,6 +178,18 @@ async function startChat(){
           </View>
 
         </View>
+
+        {property.geolocation?.latitude != null && property.geolocation?.longitude != null && (
+          <>
+            <Text style={styles.sectionTitle}>Localização</Text>
+            <View style={styles.mapWrapper}>
+              <PropertyLocationMap
+                latitude={property.geolocation.latitude}
+                longitude={property.geolocation.longitude}
+              />
+            </View>
+          </>
+        )}
 
         {property.description && (
 
@@ -368,6 +381,11 @@ sectionTitle:{
 fontWeight:"bold",
 marginBottom:6,
 color: "#2563EB"
+},
+
+mapWrapper: {
+  marginBottom: 20,
+  overflow: 'hidden',
 },
 
 description:{
