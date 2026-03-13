@@ -67,7 +67,7 @@ export default function HomeScreen({ route }: any) {
     try {
       const data = await getUserFavorites(userId);
       const mapped: { [key: string]: boolean } = {};
-      data.forEach((fav: any) => { mapped[fav.property.propertyId] = true; });
+      data.forEach((fav: any) => { mapped[fav.propertyId] = true; });
       setFavorites(mapped);
     } catch (err) {
       console.error('Erro ao carregar favoritos:', err);

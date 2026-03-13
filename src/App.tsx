@@ -5,6 +5,7 @@ import * as SecureStore from 'expo-secure-store';
 import { AuthProvider, AuthContext } from '../src/lib/auth/AuthContext';
 import AuthStack from '../src/navigation/AuthStack';
 import AppStack from '../src/navigation/AppStack';
+import { Platform } from 'react-native';
 
 function RootNavigation() {
   const { isAuthenticated, loading, logout } = React.useContext(AuthContext);
@@ -15,7 +16,7 @@ function RootNavigation() {
       try {
         if (isAuthenticated) {
           const token = await SecureStore.getItemAsync('token');
-          
+
           // Se estava autenticado mas o token foi removido, faz logout
           if (!token) {
             await logout();
@@ -30,7 +31,13 @@ function RootNavigation() {
 
     return () => clearInterval(interval);
   }, [isAuthenticated, logout]);
-
+  async function getToken() {
+    if (Platform.OS === "web") {
+      return localStorage.getItem("token");
+    } else {
+      return await SecureStore.getItemAsync("token");
+    }
+  }
   if (loading) {
     return (
       <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>

@@ -6,7 +6,7 @@ import {
     Text,
     StyleSheet,
 } from "react-native";
-import { useFocusEffect } from "@react-navigation/native";
+import { useFocusEffect, useNavigation } from "@react-navigation/native";
 import { useAuth } from "../lib/auth/AuthContext";
 import PropertyCard from "../components/PropertyCard";
 import {
@@ -21,6 +21,7 @@ export default function FavoritesScreen() {
 
     const [properties, setProperties] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
+    const navigation = useNavigation<any>();
 
     const loadFavorites = useCallback(async () => {
         if (!userId) return;
@@ -29,7 +30,8 @@ export default function FavoritesScreen() {
         try {
             const data = await getUserFavorites(userId);
 
-            const mapped = data.map((fav: any) => fav.property);
+            // Mapear corretamente os dados do favorito para extrair a propriedade
+            const mapped = data.map((fav: any) => fav.property || fav);
 
             setProperties(mapped);
         } catch (err) {
@@ -75,7 +77,6 @@ export default function FavoritesScreen() {
         );
     }
 
-
     return (
         <View style={{ flex: 1, backgroundColor: "#F3F4F6" }}>
             <FlatList
@@ -100,6 +101,7 @@ export default function FavoritesScreen() {
                             total={`Total ${priceFormatted}`}
                             isFavorite={true}
                             onToggleFavorite={handleRemoveFavorite}
+                            onPress={() => navigation.navigate('PropertyDetails', { property: item })}
                         />
                     );
                 }}

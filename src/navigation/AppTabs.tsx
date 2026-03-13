@@ -23,7 +23,7 @@ export default function AppTabs() {
       }}
     >
       <Tab.Screen
-        name="Início"
+        name="Home"
         component={HomeStack}
         options={{
           tabBarIcon: ({ color, size, focused }) => (

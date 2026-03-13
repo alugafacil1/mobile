@@ -32,7 +32,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     loadStorageData();
   }, []);
-
+  async function saveItem(key: string, value: string) {
+  if (Platform.OS === "web") {
+    localStorage.setItem(key, value);
+  } else {
+    await SecureStore.setItemAsync(key, value);
+  }
+}
   async function login(email: string, password: string) {
     setLoading(true);
     try {
@@ -52,8 +58,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         role: userRole,
       };
 
-      await SecureStore.setItemAsync("token", data.access_token);
-      await SecureStore.setItemAsync("user", JSON.stringify(userData));
+      await saveItem("token", data.access_token);
+      await saveItem("user", JSON.stringify(userData));
 
       api.defaults.headers.common["Authorization"] = `Bearer ${data.access_token}`;
 

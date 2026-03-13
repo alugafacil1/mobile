@@ -30,9 +30,9 @@ interface PropertyDetailsScreenProps {
   navigation: any;
 }
 
-export default function PropertyDetailsScreen({ route, navigation }: PropertyDetailsScreenProps) {
+export default function PropertyDetailsScreen({ route, navigation }: any) {
 
-  const { property } = route.params;
+  const { property } = route.params || {};
 
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [showInterestForm, setShowInterestForm] = useState(false);
@@ -132,7 +132,7 @@ async function startChat(){
         </TouchableOpacity> */}
 
         <View style={styles.indicators}>
-          {photos.map((_, index) => renderIndicator(index))}
+          {photos.map((_: string, index: number) => renderIndicator(index))}
         </View>
       </View>
 

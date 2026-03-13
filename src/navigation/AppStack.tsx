@@ -46,6 +46,11 @@ export default function AppStack() {
         component={ChatScreen}
         options={{ headerShown:false }}
       />
+      <Stack.Screen
+        name="PropertyDetails"
+        component={PropertyDetailsScreen}
+        options={{ headerShown: false }}
+      />
     </Stack.Navigator>
   );
 }
